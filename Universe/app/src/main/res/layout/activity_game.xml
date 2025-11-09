@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:background="@color/white">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:padding="24dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <!-- Header -->
+        <TextView
+            android:id="@+id/tvHeader"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/header_gradient"
+            android:gravity="center"
+            android:padding="20dp"
+            android:text="🎮 Fun Mini Games"
+            android:textColor="@android:color/white"
+            android:textSize="26sp"
+            android:textStyle="bold"
+            android:elevation="4dp"
+            android:layout_marginBottom="24dp"
+            android:shadowColor="#88000000"
+            android:shadowDx="0"
+            android:shadowDy="2"
+            android:shadowRadius="3" />
+
+        <!-- Game Selection Card -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            android:elevation="4dp"
+            android:padding="16dp"
+            card_view:cardCornerRadius="16dp"
+            card_view:cardUseCompatPadding="true">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center_horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Select a Game"
+                    android:textStyle="bold"
+                    android:textColor="#333333"
+                    android:textSize="18sp"
+                    android:layout_marginBottom="8dp"/>
+
+                <Spinner
+                    android:id="@+id/spinnerGames"
+                    android:layout_width="250dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:spinnerMode="dropdown" />
+
+                <ImageView
+                    android:id="@+id/ivGameImage"
+                    android:layout_width="220dp"
+                    android:layout_height="160dp"
+                    android:layout_marginBottom="16dp"
+                    android:contentDescription="Game Image"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/ic_games"
+                    android:padding="12dp" />
+
+                <TextView
+                    android:id="@+id/tvGameTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Game Title"
+                    android:textStyle="bold"
+                    android:textColor="#4A148C"
+                    android:textSize="20sp"
+                    android:layout_marginBottom="4dp" />
+
+                <TextView
+                    android:id="@+id/tvGameInfo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Choose a game and press Play!"
+                    android:textColor="#555555"
+                    android:textSize="15sp"
+                    android:gravity="center"
+                    android:layout_marginBottom="16dp" />
+
+                <Button
+                    android:id="@+id/btnPlay"
+                    android:layout_width="200dp"
+                    android:layout_height="wrap_content"
+                    android:backgroundTint="#9C27B0"
+                    android:text="Play"
+                    android:textAllCaps="false"
+                    android:textSize="16sp"
+                    android:textColor="@android:color/white"
+                    android:padding="10dp"
+                    android:elevation="2dp"
+                    android:layout_marginBottom="12dp" />
+
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- Game Result Card -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:elevation="3dp"
+            android:padding="16dp"
+            card_view:cardCornerRadius="12dp"
+            card_view:cardUseCompatPadding="true">
+
+            <TextView
+                android:id="@+id/tvGameResult"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="🎯 Awaiting your game choice 🎯"
+                android:textAlignment="center"
+                android:textColor="#212121"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:padding="8dp" />
+        </androidx.cardview.widget.CardView>
+
+    </LinearLayout>
+</ScrollView>

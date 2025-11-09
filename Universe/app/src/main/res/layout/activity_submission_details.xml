@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFFFFF"
+    android:padding="20dp">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <!-- Header -->
+        <TextView
+            android:id="@+id/tvHeader"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Submission Details"
+            android:textColor="#FFFFFF"
+            android:background="#800000"
+            android:padding="14dp"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:elevation="4dp"
+            android:letterSpacing="0.05" />
+
+        <!-- Title -->
+        <TextView
+            android:id="@+id/tvDetailsTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Assessment Title"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:textColor="#000000"
+            android:paddingTop="20dp"
+            android:paddingBottom="8dp" />
+
+        <!-- File link -->
+        <TextView
+            android:id="@+id/tvDetailsFileLink"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="File: link_here.pdf"
+            android:textColor="#333333"
+            android:textSize="16sp"
+            android:paddingBottom="8dp" />
+
+        <!-- Submission Date -->
+        <TextView
+            android:id="@+id/tvDetailsSubmittedAt"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Submitted: 2025-10-25"
+            android:textColor="#333333"
+            android:textSize="16sp"
+            android:paddingBottom="8dp" />
+
+        <!-- Grade -->
+        <TextView
+            android:id="@+id/tvDetailsGrade"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Grade: 85"
+            android:textColor="#333333"
+            android:textSize="16sp"
+            android:paddingBottom="8dp" />
+
+        <!-- Feedback -->
+        <TextView
+            android:id="@+id/tvDetailsFeedbackLabel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Feedback:"
+            android:textStyle="bold"
+            android:textColor="#800000"
+            android:textSize="17sp"
+            android:paddingTop="10dp"
+            android:paddingBottom="4dp" />
+
+        <TextView
+            android:id="@+id/tvDetailsFeedback"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Good work overall, but try to expand on your explanations in section 2."
+            android:textColor="#444444"
+            android:textSize="16sp"
+            android:lineSpacingExtra="4dp"
+            android:paddingBottom="16dp" />
+
+        <!-- Back button -->
+        <Button
+            android:id="@+id/btnBack"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Back to Submissions"
+            android:backgroundTint="#800000"
+            android:textColor="#FFFFFF"
+            android:paddingHorizontal="20dp"
+            android:layout_gravity="center"
+            android:layout_marginTop="12dp" />
+    </LinearLayout>
+</ScrollView>

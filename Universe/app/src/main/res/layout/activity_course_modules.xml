@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_course_modules"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    tools:context=".CourseModulesActivity">
+
+    <TextView
+        android:id="@+id/tvCourseTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Course Title"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:paddingBottom="12dp"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerViewModules"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+</LinearLayout>

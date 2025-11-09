@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F8E6E0"
+    tools:context=".RegisterActivity">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:padding="24dp"
+        android:gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <!-- App Logo -->
+        <ImageView
+            android:id="@+id/imgLogo"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:layout_marginBottom="24dp"
+            android:src="@drawable/unilogo"
+            android:contentDescription="App Logo" />
+
+        <!-- Title -->
+        <TextView
+            android:id="@+id/tvRegisterTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Create an Account"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:textColor="#4E342E"
+            android:layout_marginBottom="8dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Join Universe and start connecting today!"
+            android:textSize="14sp"
+            android:textColor="#6D4C41"
+            android:layout_marginBottom="24dp" />
+
+        <!-- First Name -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="316dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp">
+
+            <EditText
+                android:id="@+id/etFirstName"
+                android:layout_width="340dp"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:hint="First Name"
+                android:padding="12dp"
+                android:textColor="#000"
+                android:textSize="16sp" />
+        </androidx.cardview.widget.CardView>
+
+        <!-- Last Name -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="316dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp">
+
+            <EditText
+                android:id="@+id/etLastName"
+                android:layout_width="340dp"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:hint="Last Name"
+                android:padding="12dp"
+                android:textColor="#000"
+                android:textSize="16sp" />
+        </androidx.cardview.widget.CardView>
+
+        <!-- Email -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="317dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp">
+
+            <EditText
+                android:id="@+id/etEmail"
+                android:layout_width="340dp"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:hint="Email"
+                android:inputType="textEmailAddress"
+                android:padding="12dp"
+                android:textColor="#000"
+                android:textSize="16sp" />
+        </androidx.cardview.widget.CardView>
+
+        <!-- Phone -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="316dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp">
+
+            <EditText
+                android:id="@+id/etPhone"
+                android:layout_width="340dp"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:hint="Phone Number"
+                android:inputType="phone"
+                android:padding="12dp"
+                android:textColor="#000"
+                android:textSize="16sp" />
+        </androidx.cardview.widget.CardView>
+
+        <!-- Username -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="317dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp">
+
+            <EditText
+                android:id="@+id/etUsername"
+                android:layout_width="340dp"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:hint="Username"
+                android:padding="12dp"
+                android:textColor="#000"
+                android:textSize="16sp" />
+        </androidx.cardview.widget.CardView>
+
+        <!-- Password -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp">
+            <EditText
+                android:id="@+id/etPassword"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Password"
+                android:inputType="textPassword"
+                android:padding="12dp"
+                android:background="@android:color/transparent"
+                android:textColor="#000"
+                android:textSize="16sp" />
+        </androidx.cardview.widget.CardView>
+
+        <!-- Role Selection -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp">
+            <Spinner
+                android:id="@+id/spinnerRole"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="12dp"
+                android:background="@android:color/transparent" />
+        </androidx.cardview.widget.CardView>
+
+        <!-- Register Button -->
+        <Button
+            android:id="@+id/btnRegister"
+            android:layout_width="248dp"
+            android:layout_height="wrap_content"
+            android:backgroundTint="#800000"
+            android:fontFamily="sans-serif-medium"
+            android:padding="12dp"
+            android:text="Register"
+            android:textAllCaps="false"
+            android:textColor="#FFFFFF" />
+
+    </LinearLayout>
+</ScrollView>
