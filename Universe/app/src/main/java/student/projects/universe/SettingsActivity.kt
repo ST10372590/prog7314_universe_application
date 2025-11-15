@@ -61,13 +61,6 @@ class SettingsActivity : AppCompatActivity() {
         progressBar = findViewById(R.id.progressBar)
         progressBar.visibility = View.GONE
 
-        // Back button
-        val btnBack = findViewById<ImageButton>(R.id.btnBack)
-        btnBack.setOnClickListener {
-            val intent = Intent(this, LecturerDashboardActivity::class.java)
-            startActivity(intent)
-            finish()
-        }
 
         // Setup Spinners
         spinnerTheme.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, listOf("light", "dark", "system"))

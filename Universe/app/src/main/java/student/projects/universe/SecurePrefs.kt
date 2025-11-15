@@ -25,6 +25,7 @@ object SecurePrefs {
     }
 
     fun clearToken(context: Context) {
-        getPrefs(context).edit().clear().apply()
+        val sharedPref = context.getSharedPreferences("SecurePrefs", Context.MODE_PRIVATE)
+        sharedPref.edit().remove("jwt_token").apply()
     }
 }
