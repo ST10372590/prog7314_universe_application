@@ -1,0 +1,40 @@
+version: 2
+
+updates:
+  # ---------------------------------------------------------
+  # 1. Firebase Cloud Functions (Node / TypeScript backend)
+  # ---------------------------------------------------------
+  - package-ecosystem: "npm"
+    directory: "/functions"
+    schedule:
+      interval: "weekly"
+    versioning-strategy: increase
+    open-pull-requests-limit: 5
+    allow:
+      - dependency-type: "direct"
+      - dependency-type: "production"
+
+  # ---------------------------------------------------------
+  # 2. Android App Dependencies (Gradle + Kotlin + Material)
+  # ---------------------------------------------------------
+  - package-ecosystem: "gradle"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    allow:
+      - dependency-type: "direct"
+    ignore:
+      # Kotlin version bumps often break Android builds
+      - dependency-name: "org.jetbrains.kotlin:*"
+      # Ignore major Gradle updates unless you handle manually
+      - dependency-name: "com.android.tools.build:gradle"
+        update-types: [ "version-update:semver-major" ]
+
+  # ---------------------------------------------------------
+  # 3. GitHub Actions (Keeps workflow actions up to date)
+  # ---------------------------------------------------------
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
