@@ -16,7 +16,9 @@ jobs:
           node-version: 18
 
       - name: Install API test deps
+        working-directory: Universe/functions
         run: npm install
 
       - name: Run API contract tests
+        working-directory: Universe/functions
         run: npm run test:api --if-present
