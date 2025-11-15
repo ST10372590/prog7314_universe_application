@@ -3,7 +3,7 @@ name: Firebase Backend CI
 on:
   push:
     paths:
-      - "functions/**"
+      - "Universe/functions/**"
   pull_request:
 
 jobs:
@@ -18,13 +18,13 @@ jobs:
           node-version: 18
 
       - name: Install Node dependencies
-        working-directory: functions
+        working-directory: Universe/functions
         run: npm install
 
       - name: Lint Backend Code
-        working-directory: functions
+        working-directory: Universe/functions
         run: npm run lint --if-present
 
       - name: Build Firebase Functions
-        working-directory: functions
+        working-directory: Universe/functions
         run: npm run build
