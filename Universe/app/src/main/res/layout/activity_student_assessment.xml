@@ -1,49 +1,182 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/layoutRoot"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#FFFFFF">
+    android:background="#FFFFFF"
+    android:padding="16dp">
 
     <!-- Header with Badge in FrameLayout -->
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="12dp"
+        android:layout_marginBottom="20dp"
         android:elevation="4dp">
 
         <TextView
             android:id="@+id/tvTitle"
-            android:layout_width="match_parent"
+            android:layout_width="395dp"
             android:layout_height="wrap_content"
-            android:text="Uploaded Assessments"
-            android:textSize="24sp"
-            android:textStyle="bold"
-            android:textColor="@android:color/white"
+            android:background="#800000"
             android:gravity="center"
-            android:paddingTop="16dp"
-            android:paddingBottom="16dp"
-            android:background="#B22222"
-            android:letterSpacing="0.05" />
+            android:letterSpacing="0.05"
+            android:paddingTop="20dp"
+            android:paddingBottom="20dp"
+            android:text="Uploaded Assessments"
+            android:textColor="@android:color/white"
+            android:textSize="24sp"
+            android:textStyle="bold" />
 
         <!-- Badge for unread/new assessments -->
         <TextView
             android:id="@+id/tvBadgeCount"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
             android:layout_gravity="end|top"
-            android:layout_marginEnd="16dp"
-            android:layout_marginTop="8dp"
+            android:layout_marginEnd="20dp"
+            android:layout_marginTop="12dp"
             android:background="@drawable/badge_background"
             android:textColor="@android:color/white"
-            android:textSize="12sp"
+            android:textSize="10sp"
             android:gravity="center"
             android:visibility="gone"
-            android:text="0" />
+            android:text="0"
+            android:elevation="6dp" />
     </FrameLayout>
+
+    <!-- Search and Filter Section -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="16dp"
+        android:gravity="center_vertical">
+
+        <EditText
+            android:id="@+id/etSearch"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:hint="Search assessments..."
+            android:textSize="14sp"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:background="@drawable/search_background"
+            android:drawablePadding="8dp" />
+
+        <ImageButton
+            android:id="@+id/btnFilter"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginStart="8dp"
+            android:background="@drawable/filter_background"
+            android:contentDescription="Filter assessments"
+            android:elevation="2dp" />
+    </LinearLayout>
+
+    <!-- Stats Overview Cards -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="20dp"
+        android:gravity="center">
+
+        <!-- Total Assessments Card -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="80dp"
+            android:layout_weight="1"
+            android:layout_marginEnd="8dp"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:background="@drawable/stats_card_background"
+            android:padding="12dp"
+            android:elevation="2dp">
+
+            <TextView
+                android:id="@+id/tvTotalCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="#B22222" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Total"
+                android:textSize="12sp"
+                android:textColor="#666666"
+                android:gravity="center" />
+        </LinearLayout>
+
+        <!-- Graded Assessments Card -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="80dp"
+            android:layout_weight="1"
+            android:layout_marginStart="4dp"
+            android:layout_marginEnd="4dp"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:background="@drawable/stats_card_background"
+            android:padding="12dp"
+            android:elevation="2dp">
+
+            <TextView
+                android:id="@+id/tvGradedCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="#2E8B57" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Graded"
+                android:textSize="12sp"
+                android:textColor="#666666"
+                android:gravity="center" />
+        </LinearLayout>
+
+        <!-- Pending Assessments Card -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="80dp"
+            android:layout_weight="1"
+            android:layout_marginStart="8dp"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:background="@drawable/stats_card_background"
+            android:padding="12dp"
+            android:elevation="2dp">
+
+            <TextView
+                android:id="@+id/tvPendingCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="#FF8C00" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Pending"
+                android:textSize="12sp"
+                android:textColor="#666666"
+                android:gravity="center" />
+        </LinearLayout>
+    </LinearLayout>
 
     <!-- Progress Bar -->
     <ProgressBar
@@ -53,20 +186,21 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:visibility="gone"
-        android:indeterminateTint="@android:color/white"
-        android:padding="12dp" />
+        android:indeterminateTint="#B22222"
+        android:padding="20dp" />
 
     <!-- No Assessments Text -->
     <TextView
         android:id="@+id/tvNoAssessments"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="No Assessments Uploaded Yet."
+        android:text="No Assessments Uploaded Yet"
         android:textSize="16sp"
-        android:textColor="@android:color/white"
+        android:textColor="#666666"
         android:gravity="center"
-        android:padding="24dp"
-        android:visibility="gone"/>
+        android:padding="40dp"
+        android:visibility="gone"
+        android:drawablePadding="16dp" />
 
     <!-- RecyclerView for Assessment List -->
     <androidx.recyclerview.widget.RecyclerView
@@ -77,6 +211,19 @@
         android:clipToPadding="false"
         android:paddingTop="8dp"
         android:paddingBottom="8dp"
+        android:scrollbars="vertical"
         tools:listitem="@layout/item_student_assessment" />
+
+    <!-- Footer -->
+    <TextView
+        android:id="@+id/tvFooter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="20dp"
+        android:text="© 2025 Universe App"
+        android:textColor="#AAAAAA"
+        android:textSize="12sp" />
 
 </LinearLayout>

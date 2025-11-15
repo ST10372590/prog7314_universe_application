@@ -9,38 +9,34 @@
     android:background="@color/white"
     tools:context=".StudentDashboardActivity">
 
-    <!-- Header with maroon background -->
+    <!-- Header with app name -->
     <LinearLayout
-        android:id="@+id/headerLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:padding="16dp"
         android:background="#800000"
-        android:gravity="center_vertical"
-        android:weightSum="3">
+        android:gravity="center_vertical">
 
-        <!-- Title -->
+        <!-- App Title -->
         <TextView
-            android:id="@+id/tvDashboardTitle"
-            android:layout_width="0dp"
+            android:layout_width="199dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1.5"
-            android:text="Student Dashboard"
-            android:textSize="22sp"
-            android:textStyle="bold"
+            android:layout_weight="1"
+            android:gravity="start"
+            android:text="UniVerse"
             android:textColor="@android:color/white"
-            android:gravity="center" />
+            android:textSize="24sp"
+            android:textStyle="bold" />
 
         <!-- My Submissions Button -->
         <ImageButton
             android:id="@+id/btnMySubmissions"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:layout_weight="0.75"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="My Submissions"
-            android:src="@drawable/ic_submissions"
+            android:src="@drawable/ic_submission"
             android:padding="8dp"
             android:layout_marginEnd="8dp" />
 
@@ -49,24 +45,152 @@
             android:id="@+id/btnNotifications"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:layout_weight="0.75"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="Notifications"
-            android:src="@drawable/ic_notifications"
+            android:src="@drawable/ic_notify_icon"
             android:padding="8dp" />
     </LinearLayout>
 
-    <!-- Enrolled Courses Section -->
+    <!-- Welcome Section -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:background="#FAFAFA">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Welcome,"
+            android:textSize="18sp"
+            android:textColor="#666666"
+            android:layout_marginBottom="4dp" />
+
+        <TextView
+            android:id="@+id/tvStudentName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Student!"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:textColor="#000000"
+            android:layout_marginBottom="16dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Here's your learning progress"
+            android:textSize="16sp"
+            android:textColor="#666666"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Progress Stats Cards -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="3"
+            android:layout_marginBottom="16dp">
+
+            <!-- Day Streak Card -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:background="@drawable/card_background"
+                android:padding="12dp"
+                android:layout_marginEnd="8dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="14"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:textColor="#800000" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Day Streak"
+                    android:textSize="12sp"
+                    android:textColor="#666666" />
+            </LinearLayout>
+
+            <!-- Points Card -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:background="@drawable/card_background"
+                android:padding="12dp"
+                android:layout_marginEnd="8dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="1,250"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:textColor="#800000" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Points"
+                    android:textSize="12sp"
+                    android:textColor="#666666" />
+            </LinearLayout>
+
+            <!-- Completion Card -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:background="@drawable/card_background"
+                android:padding="12dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="42%"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:textColor="#800000" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Complete"
+                    android:textSize="12sp"
+                    android:textColor="#666666" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Divider -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#DDDDDD"
+            android:layout_marginBottom="16dp" />
+    </LinearLayout>
+
+    <!-- Your Courses Section -->
     <TextView
         android:id="@+id/tvEnrolledHeader"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Your Enrolled Courses"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:textColor="@color/black"
-        android:paddingTop="12dp"
-        android:paddingBottom="4dp" />
+        android:layout_height="60dp"
+        android:background="@drawable/card_background"
+        android:padding="12dp"
+        android:paddingBottom="8dp"
+        android:text="Your Courses"
+        android:textColor="#000000"
+        android:textSize="20sp"
+        android:textStyle="bold" />
 
     <!-- Message for no enrolled courses -->
     <TextView
@@ -78,7 +202,7 @@
         android:textColor="#888888"
         android:gravity="center"
         android:visibility="gone"
-        android:padding="8dp" />
+        android:padding="16dp" />
 
     <!-- RecyclerView for enrolled courses -->
     <androidx.recyclerview.widget.RecyclerView
@@ -101,13 +225,15 @@
     <TextView
         android:id="@+id/tvAllCoursesHeader"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Available Courses"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:textColor="@color/black"
+        android:layout_height="59dp"
+        android:background="@drawable/card_background"
+        android:padding="12dp"
         android:paddingTop="8dp"
-        android:paddingBottom="4dp" />
+        android:paddingBottom="4dp"
+        android:text="Available Courses"
+        android:textColor="@color/black"
+        android:textSize="18sp"
+        android:textStyle="bold" />
 
     <!-- RecyclerView for all courses -->
     <androidx.recyclerview.widget.RecyclerView
@@ -124,9 +250,10 @@
         android:id="@+id/bottomNavigationView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#800000"
-        app:itemIconTint="@color/white"
-        app:itemTextColor="@color/white"
+        android:background="@drawable/card_background_bar"
+        android:padding="12dp"
+        app:itemIconTint="@color/black"
+        app:itemTextColor="#736D6D"
         app:menu="@drawable/bottom_nav_menu" />
 
 </LinearLayout>

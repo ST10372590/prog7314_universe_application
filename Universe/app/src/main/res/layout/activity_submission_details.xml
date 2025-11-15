@@ -1,104 +1,360 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#FFFFFF"
-    android:padding="20dp">
+    android:padding="16dp"
+    android:fitsSystemWindows="true">
 
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <!-- Header -->
-        <TextView
-            android:id="@+id/tvHeader"
+        <!-- Header with Icon -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Submission Details"
-            android:textColor="#FFFFFF"
+            android:layout_marginBottom="20dp"
             android:background="#800000"
-            android:padding="14dp"
-            android:textSize="22sp"
-            android:textStyle="bold"
+            android:backgroundTint="#800000"
+            android:elevation="8dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="20dp">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginEnd="12dp"
+                android:src="@drawable/ic_submission"
+                app:tint="#FFFFFF" />
+
+            <TextView
+                android:id="@+id/tvHeader"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:letterSpacing="0.03"
+                android:text="Submission Details"
+                android:textColor="#FFFFFF"
+                android:textSize="24sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvStatusBadge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/badge_graded"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="4dp"
+                android:text="GRADED"
+                android:textColor="#FFFFFF"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- Submission Info Card -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="4dp"
+            app:cardUseCompatPadding="true">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <!-- Title Section -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Assessment Information"
+                    android:textColor="#800000"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:drawablePadding="8dp"
+                    android:paddingBottom="16dp" />
+
+                <!-- Assessment Title -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:paddingBottom="12dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Title:"
+                        android:textColor="#666666"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvDetailsTitle"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="2"
+                        android:text="Research Methodology Final Paper"
+                        android:textColor="#000000"
+                        android:textSize="14sp" />
+                </LinearLayout>
+
+                <!-- File Link with Download Button -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:paddingBottom="12px">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="File:"
+                        android:textColor="#666666"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="2"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <TextView
+                            android:id="@+id/tvDetailsFileLink"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="research_paper.pdf"
+                            android:textColor="#800000"
+                            android:textSize="14sp"
+                            android:ellipsize="end"
+                            android:maxLines="1" />
+
+                        <ImageButton
+                            android:id="@+id/btnDownload"
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:src="@drawable/ic_download"
+                            android:contentDescription="Download file"
+                            app:tint="#800000" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- Submission Date -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:paddingBottom="12dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Submitted:"
+                        android:textColor="#666666"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvDetailsSubmittedAt"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="2"
+                        android:text="October 25, 2025 at 14:30"
+                        android:textColor="#000000"
+                        android:textSize="14sp" />
+                </LinearLayout>
+
+                <!-- Grade with Visual Indicator -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:paddingBottom="8dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Grade:"
+                        android:textColor="#666666"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="2"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <TextView
+                            android:id="@+id/tvDetailsGrade"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="85/100"
+                            android:textColor="#2E8B57"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+
+                        <ProgressBar
+                            android:id="@+id/gradeProgress"
+                            style="@android:style/Widget.Material.ProgressBar.Horizontal"
+                            android:layout_width="0dp"
+                            android:layout_height="8dp"
+                            android:layout_weight="1"
+                            android:layout_marginStart="12dp"
+                            android:progress="85"
+                            android:max="100"
+                            android:progressTint="#2E8B57"
+                            android:progressBackgroundTint="#E0E0E0" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- Grade Percentage -->
+                <TextView
+                    android:id="@+id/tvGradePercentage"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="85% - Excellent"
+                    android:textColor="#2E8B57"
+                    android:textSize="12sp"
+                    android:gravity="end"
+                    android:paddingBottom="8dp" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- Feedback Card -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="4dp"
+            app:cardUseCompatPadding="true">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <!-- Feedback Header -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingBottom="16dp">
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_feedback"
+                        android:layout_marginEnd="8dp"
+                        app:tint="#800000" />
+
+                    <TextView
+                        android:id="@+id/tvDetailsFeedbackLabel"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Instructor Feedback"
+                        android:textColor="#800000"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvFeedbackDate"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Nov 2, 2025"
+                        android:textColor="#666666"
+                        android:textSize="12sp" />
+                </LinearLayout>
+
+                <!-- Feedback Content -->
+                <TextView
+                    android:id="@+id/tvDetailsFeedback"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Good work overall! Your research methodology is sound and well-documented. The literature review is comprehensive, but try to expand on your explanations in section 2. The data analysis section could benefit from more detailed interpretation of the results. Overall, this is a strong submission demonstrating good understanding of the research process."
+                    android:textColor="#444444"
+                    android:textSize="14sp"
+                    android:lineSpacingExtra="6dp"
+                    android:padding="16dp"
+                    android:background="@drawable/feddback_background" />
+
+                <!-- Graded By -->
+                <TextView
+                    android:id="@+id/tvGradedBy"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Graded by: Dr. Sarah Johnson"
+                    android:textColor="#666666"
+                    android:textSize="12sp"
+                    android:gravity="end"
+                    android:paddingTop="12dp" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- Action Buttons -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
             android:gravity="center"
-            android:elevation="4dp"
-            android:letterSpacing="0.05" />
+            android:paddingVertical="8dp">
 
-        <!-- Title -->
+            <Button
+                android:id="@+id/btnBack"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_marginEnd="8dp"
+                android:layout_weight="1"
+                android:backgroundTint="#800000"
+                android:text="Back to List"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <Button
+                android:id="@+id/btnViewOriginal"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:layout_marginStart="8dp"
+                android:backgroundTint="#800000"
+                android:text="View Original"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- Footer -->
         <TextView
-            android:id="@+id/tvDetailsTitle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Assessment Title"
-            android:textStyle="bold"
-            android:textSize="18sp"
-            android:textColor="#000000"
-            android:paddingTop="20dp"
-            android:paddingBottom="8dp" />
-
-        <!-- File link -->
-        <TextView
-            android:id="@+id/tvDetailsFileLink"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="File: link_here.pdf"
-            android:textColor="#333333"
-            android:textSize="16sp"
-            android:paddingBottom="8dp" />
-
-        <!-- Submission Date -->
-        <TextView
-            android:id="@+id/tvDetailsSubmittedAt"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Submitted: 2025-10-25"
-            android:textColor="#333333"
-            android:textSize="16sp"
-            android:paddingBottom="8dp" />
-
-        <!-- Grade -->
-        <TextView
-            android:id="@+id/tvDetailsGrade"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Grade: 85"
-            android:textColor="#333333"
-            android:textSize="16sp"
-            android:paddingBottom="8dp" />
-
-        <!-- Feedback -->
-        <TextView
-            android:id="@+id/tvDetailsFeedbackLabel"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Feedback:"
-            android:textStyle="bold"
-            android:textColor="#800000"
-            android:textSize="17sp"
-            android:paddingTop="10dp"
-            android:paddingBottom="4dp" />
-
-        <TextView
-            android:id="@+id/tvDetailsFeedback"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Good work overall, but try to expand on your explanations in section 2."
-            android:textColor="#444444"
-            android:textSize="16sp"
-            android:lineSpacingExtra="4dp"
-            android:paddingBottom="16dp" />
-
-        <!-- Back button -->
-        <Button
-            android:id="@+id/btnBack"
+            android:id="@+id/tvFooter"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Back to Submissions"
-            android:backgroundTint="#800000"
-            android:textColor="#FFFFFF"
-            android:paddingHorizontal="20dp"
-            android:layout_gravity="center"
-            android:layout_marginTop="12dp" />
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="24dp"
+            android:layout_marginBottom="16dp"
+            android:text="© 2025 Universe App - Submission Details"
+            android:textColor="#AAAAAA"
+            android:textSize="10sp" />
+
     </LinearLayout>
 </ScrollView>
