@@ -1,4 +1,3 @@
-
 package student.projects.universe
 
 import android.content.Intent
@@ -41,8 +40,21 @@ class LecturerDashboardActivity : AppCompatActivity() {
         tvNoAllCourses = findViewById(R.id.tvNoCoursesAvailable)
         tvLecturerName = findViewById(R.id.tvLecturerName)
 
-        // Set lecturer name dynamically using Intent extra
-        val lecturerName = intent.getStringExtra("lastName") ?: "Lecturer"
+        // Set lecturer name dynamically using Intent extras
+        val firstName = intent.getStringExtra("firstName") ?: ""
+        val lastName = intent.getStringExtra("lastName") ?: ""
+
+        // Format the name display
+        val lecturerName = if (firstName.isNotEmpty() && lastName.isNotEmpty()) {
+            "$firstName $lastName"
+        } else if (firstName.isNotEmpty()) {
+            firstName
+        } else if (lastName.isNotEmpty()) {
+            lastName
+        } else {
+            "Lecturer"
+        }
+
         tvLecturerName.text = lecturerName
         Log.d("LecturerDashboard", "Lecturer name set: $lecturerName")
 
@@ -74,7 +86,6 @@ class LecturerDashboardActivity : AppCompatActivity() {
         loadCourses()
 
         // Bottom navigation setup // (Patel, 2025)
-        // --- Bottom Navigation // (Patel, 2025)
         val bottomNav = findViewById<com.google.android.material.bottomnavigation.BottomNavigationView>(R.id.bottomNavigationView)
         bottomNav.setOnItemSelectedListener { item ->
             when (item.itemId) {
