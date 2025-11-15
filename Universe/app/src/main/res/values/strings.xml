@@ -1,5 +1,5 @@
 <resources>
     <string name="app_name">Universe</string>
     <string name="default_web_client_id">64158382237-oe44dvlh679n673iqtanlf9ifrkidvip.apps.googleusercontent.com</string>
-
+    <string name="label_module">Module: %1$s</string>
 </resources>

@@ -3,5 +3,17 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="maroon">#800000</color>
+    <color name="colorPending">#FF8C00</color>
+    <color name="colorError">#FF4444</color>
+    <color name="colorPrimary">#800000</color>
+    <color name="colorTeal">#037076</color>
+
+    <!-- New colors for enrollment states -->
+    <color name="colorDisabled">#CCCCCC</color>
+    <color name="colorTextDisabled">#666666</color>
+
+    <!-- Status colors -->
+    <color name="colorActive">#2E8B57</color>
+    <color name="colorInactive">#FF6B6B</color>
 </resources>
 
