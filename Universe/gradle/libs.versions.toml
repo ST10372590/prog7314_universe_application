@@ -13,7 +13,7 @@ recyclerview = "1.4.0"
 firebaseMessagingKtx = "25.0.1"
 firebaseMessaging = "25.0.1"
 firebaseDatabaseKtx = "20.2.2"
-firebaseDatabase = "20.2.2"
+firebaseDatabase = "22.0.1"
 firebaseAuth = "24.0.1"
 
 [libraries]
