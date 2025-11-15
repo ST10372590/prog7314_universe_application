@@ -129,5 +129,5 @@
         android:background="#800000"
         app:itemIconTint="@color/white"
         app:itemTextColor="@color/white"
-        app:menu="@drawable/bottom_nav_menu" />
+        app:menu="@drawable/bottom_nav_menu_lecturer" />
 </LinearLayout>
