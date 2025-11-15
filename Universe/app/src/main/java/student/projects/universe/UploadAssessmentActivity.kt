@@ -35,6 +35,10 @@ class UploadAssessmentActivity : AppCompatActivity() {
     private lateinit var btnSubmit: Button
     private lateinit var btnAttachFile: Button
     private lateinit var rvAssessments: RecyclerView
+    private lateinit var tvNoAssessments: TextView
+    private lateinit var tvModuleTitle: TextView
+    private lateinit var tvHeaderTitle: TextView
+    private lateinit var tvFooter: TextView
 
     // Adapter for displaying uploaded assessments
     private lateinit var assessmentAdapter: AssessmentAdapter
@@ -44,6 +48,8 @@ class UploadAssessmentActivity : AppCompatActivity() {
     private var selectedFileUri: Uri? = null
     private var courseId: String = ""
     private var moduleId: String = ""
+    private var moduleTitle: String = ""
+    private var courseTitle: String = ""
 
     private val PICK_FILE_REQUEST = 1001
 
@@ -51,7 +57,22 @@ class UploadAssessmentActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_upload_assessment)
 
-        // Initialize UI elements
+        initializeViews()
+        loadIntentData()
+        setupUI()
+        setupRecyclerView()
+        setupClickListeners()
+        loadAssessments()
+    }
+
+    private fun initializeViews() {
+        // Header
+        tvHeaderTitle = findViewById(R.id.tvHeaderTitle)
+
+        // Module info card
+        tvModuleTitle = findViewById(R.id.tvModuleTitle)
+
+        // Form elements
         etTitle = findViewById(R.id.etTitle)
         etDescription = findViewById(R.id.etDescription)
         etMaxMarks = findViewById(R.id.etMaxMarks)
@@ -59,24 +80,46 @@ class UploadAssessmentActivity : AppCompatActivity() {
         btnSelectDate = findViewById(R.id.btnSelectDate)
         btnSubmit = findViewById(R.id.btnSubmit)
         btnAttachFile = findViewById(R.id.btnAttachFile)
-        rvAssessments = findViewById(R.id.rvAssessments)
         tvSelectedFileName = findViewById(R.id.tvSelectedFileName)
 
-        // Retrieve the course and module IDs passed from the previous activity
+        // Assessments section
+        rvAssessments = findViewById(R.id.rvAssessments)
+        tvNoAssessments = findViewById(R.id.tvNoAssessments)
+
+        // Footer
+        tvFooter = findViewById(R.id.tvFooter)
+    }
+
+    private fun loadIntentData() {
         courseId = intent.getStringExtra("courseId") ?: ""
         moduleId = intent.getStringExtra("moduleId") ?: ""
+        moduleTitle = intent.getStringExtra("moduleTitle") ?: "Untitled Module"
+        courseTitle = intent.getStringExtra("courseTitle") ?: "Unknown Course"
 
-        // Set up RecyclerView for displaying uploaded assessments
+        Log.d("UploadAssessment", "Received courseId: '$courseId', moduleId: '$moduleId', title: '$moduleTitle'")
+    }
+
+    private fun setupUI() {
+        // Update header
+        tvHeaderTitle.text = "Upload Assessment - $moduleTitle"
+
+        // Update module info card
+        tvModuleTitle.text = "Module: $moduleTitle"
+
+        // Set up footer
+        tvFooter.text = "© 2025 Universe App - $moduleTitle"
+    }
+
+    private fun setupRecyclerView() {
         assessmentAdapter = AssessmentAdapter(mutableListOf()) { fileUrl ->
             openFile(fileUrl)
         }
         rvAssessments.adapter = assessmentAdapter
         rvAssessments.layoutManager = LinearLayoutManager(this)
+    }
 
-        // Load assessments that have already been uploaded for this module
-        loadAssessments()
+    private fun setupClickListeners() {
 
-        // Button click listeners
         btnSelectDate.setOnClickListener { showDatePicker() }
         btnAttachFile.setOnClickListener { pickFile() }
         btnSubmit.setOnClickListener { submitAssessment() }
@@ -90,7 +133,7 @@ class UploadAssessmentActivity : AppCompatActivity() {
                 calendar.set(year, month, dayOfMonth)
                 val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.US)
                 selectedDueDate = sdf.format(calendar.time)
-                tvDueDate.text = "Due Date: $selectedDueDate"
+                tvDueDate.text = selectedDueDate
             },
             calendar.get(Calendar.YEAR),
             calendar.get(Calendar.MONTH),
@@ -141,20 +184,14 @@ class UploadAssessmentActivity : AppCompatActivity() {
                     Log.d("UploadAssessment", "Response body: ${response.body()}")
 
                     if (response.isSuccessful && response.body() != null) {
-                        val modules = response.body()!!
+                        val assessments = response.body()!!
 
-                        if (modules.isEmpty()) {
+                        if (assessments.isEmpty()) {
                             Log.w("UploadAssessment", "No assessments found for moduleId: $moduleId")
-                            Toast.makeText(
-                                this@UploadAssessmentActivity,
-                                "No Assessments Uploaded Yet for this module.",
-                                Toast.LENGTH_LONG
-                            ).show()
-                            assessmentAdapter.setAssessments(emptyList())
                             showNoAssessmentsMessage(true)
                         } else {
-                            Log.d("UploadAssessment", "Assessments loaded: ${modules.size}")
-                            val assessments = modules.map { resp ->
+                            Log.d("UploadAssessment", "Assessments loaded: ${assessments.size}")
+                            val assessmentList = assessments.map { resp ->
                                 Assessment(
                                     assessmentID = resp.assessmentID,
                                     title = resp.title,
@@ -164,15 +201,15 @@ class UploadAssessmentActivity : AppCompatActivity() {
                                     fileUrl = resp.fileUrl
                                 )
                             }
-                            assessmentAdapter.setAssessments(assessments)
+                            assessmentAdapter.setAssessments(assessmentList)
                             showNoAssessmentsMessage(false)
                         }
 
                     } else {
                         Toast.makeText(
                             this@UploadAssessmentActivity,
-                            "No Uploaded Assessments",
-                            Toast.LENGTH_LONG
+                            "Failed to load assessments",
+                            Toast.LENGTH_SHORT
                         ).show()
                         showNoAssessmentsMessage(true)
                     }
@@ -191,8 +228,8 @@ class UploadAssessmentActivity : AppCompatActivity() {
     }
 
     private fun showNoAssessmentsMessage(show: Boolean) {
-        val noDataTextView = findViewById<TextView>(R.id.tvNoAssessments)
-        noDataTextView.visibility = if (show) View.VISIBLE else View.GONE
+        tvNoAssessments.visibility = if (show) View.VISIBLE else View.GONE
+        rvAssessments.visibility = if (show) View.GONE else View.VISIBLE
     }
 
     private fun submitAssessment() {
@@ -200,16 +237,40 @@ class UploadAssessmentActivity : AppCompatActivity() {
         val description = etDescription.text.toString().trim()
         val maxMarksText = etMaxMarks.text.toString().trim()
 
-        if (title.isEmpty() || description.isEmpty() || maxMarksText.isEmpty() || selectedDueDate.isEmpty()) {
-            Toast.makeText(this, "All fields are required", Toast.LENGTH_SHORT).show()
+        // Validation
+        if (title.isEmpty()) {
+            etTitle.error = "Assessment title is required"
+            etTitle.requestFocus()
+            return
+        }
+
+        if (description.isEmpty()) {
+            etDescription.error = "Description is required"
+            etDescription.requestFocus()
+            return
+        }
+
+        if (maxMarksText.isEmpty()) {
+            etMaxMarks.error = "Maximum marks is required"
+            etMaxMarks.requestFocus()
+            return
+        }
+
+        if (selectedDueDate.isEmpty()) {
+            Toast.makeText(this, "Please select a due date", Toast.LENGTH_SHORT).show()
             return
         }
 
         val maxMarks = maxMarksText.toIntOrNull()
         if (maxMarks == null || maxMarks <= 0) {
-            Toast.makeText(this, "Max Marks must be a positive number", Toast.LENGTH_SHORT).show()
+            etMaxMarks.error = "Max Marks must be a positive number"
+            etMaxMarks.requestFocus()
             return
         }
+
+        // Show loading state
+        btnSubmit.isEnabled = false
+        btnSubmit.text = "Uploading..."
 
         val formattedDueDate = try {
             val parsedDate = SimpleDateFormat("yyyy-MM-dd", Locale.US).parse(selectedDueDate)
@@ -239,6 +300,8 @@ class UploadAssessmentActivity : AppCompatActivity() {
                 filePart = MultipartBody.Part.createFormData("file", file.name, requestFile)
             } catch (e: Exception) {
                 Toast.makeText(this, "Failed to read selected file", Toast.LENGTH_SHORT).show()
+                btnSubmit.isEnabled = true
+                btnSubmit.text = "Create Assessment"
                 return
             }
         }
@@ -247,8 +310,11 @@ class UploadAssessmentActivity : AppCompatActivity() {
             titlePart, descPart, duePart, marksPart, coursePart, modulePart, filePart
         ).enqueue(object : Callback<AssessmentResponse> {
             override fun onResponse(call: Call<AssessmentResponse>, response: Response<AssessmentResponse>) {
+                btnSubmit.isEnabled = true
+                btnSubmit.text = "Create Assessment"
+
                 if (response.isSuccessful && response.body() != null) {
-                    Toast.makeText(this@UploadAssessmentActivity, "Assessment uploaded!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@UploadAssessmentActivity, "Assessment uploaded successfully!", Toast.LENGTH_SHORT).show()
                     val body = response.body()!!
                     val uploaded = Assessment(
                         assessmentID = body.assessmentID,
@@ -259,8 +325,9 @@ class UploadAssessmentActivity : AppCompatActivity() {
                         fileUrl = body.fileUrl
                     )
                     assessmentAdapter.addAssessment(uploaded)
+                    showNoAssessmentsMessage(false)
 
-                    // ✅ NEW: Push notification data to Firebase Realtime Database
+                    // Push notification to Firebase
                     val notifRef = FirebaseDatabase.getInstance()
                         .getReference("notifications")
                         .child(moduleId)
@@ -280,26 +347,36 @@ class UploadAssessmentActivity : AppCompatActivity() {
                             Log.e("UploadAssessment", "Failed to push notification: ${e.message}")
                         }
 
-                    // Reset form after successful upload
-                    etTitle.text.clear()
-                    etDescription.text.clear()
-                    etMaxMarks.text.clear()
-                    tvDueDate.text = "Select Due Date"
-                    tvSelectedFileName.text = "No file selected"
-                    selectedDueDate = ""
-                    selectedFileUri = null
+                    // Reset form
+                    resetForm()
+
+                    // Reload assessments to ensure data is fresh
+                    loadAssessments()
+
                 } else {
                     val errorBody = response.errorBody()?.string()
                     Log.e("UploadAssessment", "Failed to upload assessment: ${response.code()} - $errorBody")
-                    Toast.makeText(this@UploadAssessmentActivity, "Failed to upload. Check logs.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@UploadAssessmentActivity, "Failed to upload assessment", Toast.LENGTH_SHORT).show()
                 }
             }
 
             override fun onFailure(call: Call<AssessmentResponse>, t: Throwable) {
+                btnSubmit.isEnabled = true
+                btnSubmit.text = "Create Assessment"
                 Log.e("UploadAssessment", "Error uploading assessment", t)
-                Toast.makeText(this@UploadAssessmentActivity, "Error uploading assessment", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@UploadAssessmentActivity, "Error uploading assessment: ${t.message}", Toast.LENGTH_SHORT).show()
             }
         })
+    }
+
+    private fun resetForm() {
+        etTitle.text.clear()
+        etDescription.text.clear()
+        etMaxMarks.text.clear()
+        tvDueDate.text = "No date selected"
+        tvSelectedFileName.text = "No file selected"
+        selectedDueDate = ""
+        selectedFileUri = null
     }
 
     private fun openFile(fileUrl: String?) {
@@ -307,8 +384,20 @@ class UploadAssessmentActivity : AppCompatActivity() {
             val intent = Intent(Intent.ACTION_VIEW)
             intent.setDataAndType(Uri.parse(it), "*/*")
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            startActivity(intent)
+
+            // Check if there's an app that can handle this file type
+            if (intent.resolveActivity(packageManager) != null) {
+                startActivity(intent)
+            } else {
+                Toast.makeText(this, "No app available to open this file", Toast.LENGTH_SHORT).show()
+            }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Refresh assessments when returning to this activity
+        loadAssessments()
     }
 }
 

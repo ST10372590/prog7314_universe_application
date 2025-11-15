@@ -11,6 +11,9 @@ data class UserResponse(
     val unreadCount: Int = 0
 )
 
+data class DeviceTokenRequest(val token: String)
+
+
 /*
 
 Reference List
