@@ -17,10 +17,10 @@ import retrofit2.Callback
 import retrofit2.Response
 
 /**
- * StudentDashboardActivity displays the student’s enrolled courses and all available courses.
+ * StudentDashboardActivity displays the student's enrolled courses and all available courses.
  * Allows students to enroll in courses and view their modules.
  */
-class StudentDashboardActivity : AppCompatActivity() { // (Patel, 2025)
+class StudentDashboardActivity : AppCompatActivity() {
 
     // UI components
     private lateinit var recyclerViewEnrolled: RecyclerView
@@ -30,7 +30,6 @@ class StudentDashboardActivity : AppCompatActivity() { // (Patel, 2025)
     private val enrolledCourses = mutableListOf<CourseResponse>()
     private val allCourses = mutableListOf<CourseResponse>()
     private lateinit var tvNoEnrolled: TextView
-    // (Patel, 2025)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,7 +51,7 @@ class StudentDashboardActivity : AppCompatActivity() { // (Patel, 2025)
             Toast.makeText(this, "Opening My Submissions...", Toast.LENGTH_SHORT).show()
         }
 
-        // --- Setup Adapters // (Patel, 2025)
+        // --- Setup Adapters ---
         adapterEnrolled = CourseAdapter(enrolledCourses, "Student") { course ->
             Toast.makeText(this, "Viewing course: ${course.courseTitle}", Toast.LENGTH_SHORT).show()
             Log.d("StudentDashboard", "Clicked enrolled course: ${course.courseTitle}")
@@ -62,8 +61,6 @@ class StudentDashboardActivity : AppCompatActivity() { // (Patel, 2025)
             Log.d("StudentDashboard", "Clicked available course: ${course.courseTitle}")
             showEnrollmentDialog(this, course)
         }
-
-        // (Patel, 2025)
 
         recyclerViewEnrolled.layoutManager = LinearLayoutManager(this)
         recyclerViewEnrolled.adapter = adapterEnrolled
@@ -75,7 +72,7 @@ class StudentDashboardActivity : AppCompatActivity() { // (Patel, 2025)
         loadEnrolledCourses()
         loadAllCourses()
 
-        // --- Bottom Navigation // (Patel, 2025)
+        // --- Bottom Navigation ---
         val bottomNav = findViewById<com.google.android.material.bottomnavigation.BottomNavigationView>(R.id.bottomNavigationView)
         bottomNav.setOnItemSelectedListener { item ->
             when (item.itemId) {
@@ -89,19 +86,19 @@ class StudentDashboardActivity : AppCompatActivity() { // (Patel, 2025)
                     startActivity(intent)
                     Log.d("StudentDashboard", "Bottom nav: Courses selected")
                     true
-                } // (Patel, 2025)
+                }
                 R.id.nav_settings -> {
                     val intent = Intent(this, SettingsActivity::class.java)
                     startActivity(intent)
                     Log.d("StudentDashboard", "Bottom nav: Settings selected")
                     true
-                } // (Patel, 2025)
+                }
                 R.id.nav_gamification -> {
                     val intent = Intent(this, GamificationActivity::class.java)
                     startActivity(intent)
                     Log.d("StudentDashboard", "Bottom nav: Gamification selected")
                     true
-                } // (Patel, 2025)
+                }
                 R.id.nav_messages -> {
                     val intent = Intent(this, CommunicationHubActivity::class.java)
                     startActivity(intent)
@@ -116,7 +113,7 @@ class StudentDashboardActivity : AppCompatActivity() { // (Patel, 2025)
     /**
      * Load courses the student is already enrolled in
      */
-    private fun loadEnrolledCourses() { // (Patel, 2025)
+    private fun loadEnrolledCourses() {
         Log.d("StudentDashboard", "Loading enrolled courses")
         ApiClient.courseApi.getEnrolledCourses().enqueue(object : Callback<List<CourseResponse>> {
             override fun onResponse(
@@ -129,14 +126,13 @@ class StudentDashboardActivity : AppCompatActivity() { // (Patel, 2025)
                     adapterEnrolled.notifyDataSetChanged()
                     tvNoEnrolled.visibility = if (enrolledCourses.isEmpty()) View.VISIBLE else View.GONE
                     Log.d("StudentDashboard", "Enrolled courses loaded: ${enrolledCourses.size}")
-                } else { // (Patel, 2025)
+                } else {
                     tvNoEnrolled.visibility = View.VISIBLE
                     Toast.makeText(this@StudentDashboardActivity, "Failed to load enrolled courses", Toast.LENGTH_SHORT).show()
                     Log.e("StudentDashboard", "Failed to load enrolled courses: HTTP ${response.code()}")
                 }
             }
 
-            // (Patel, 2025)
             override fun onFailure(call: Call<List<CourseResponse>>, t: Throwable) {
                 tvNoEnrolled.visibility = View.VISIBLE
                 Toast.makeText(this@StudentDashboardActivity, "Error: ${t.message}", Toast.LENGTH_SHORT).show()
@@ -148,7 +144,7 @@ class StudentDashboardActivity : AppCompatActivity() { // (Patel, 2025)
     /**
      * Load all available courses
      */
-    private fun loadAllCourses() { // (Patel, 2025)
+    private fun loadAllCourses() {
         Log.d("StudentDashboard", "Loading all courses")
         ApiClient.courseApi.getAllCourses().enqueue(object : Callback<List<CourseResponse>> {
             override fun onResponse(call: Call<List<CourseResponse>>, response: Response<List<CourseResponse>>) {
@@ -157,13 +153,13 @@ class StudentDashboardActivity : AppCompatActivity() { // (Patel, 2025)
                     allCourses.addAll(response.body()!!)
                     adapterAll.notifyDataSetChanged()
                     Log.d("StudentDashboard", "All courses loaded: ${allCourses.size}")
-                } else { // (Patel, 2025)
+                } else {
                     Toast.makeText(this@StudentDashboardActivity, "Failed to load courses", Toast.LENGTH_SHORT).show()
                     Log.e("StudentDashboard", "Failed to load all courses: HTTP ${response.code()}")
                 }
             }
 
-            override fun onFailure(call: Call<List<CourseResponse>>, t: Throwable) { // (Patel, 2025)
+            override fun onFailure(call: Call<List<CourseResponse>>, t: Throwable) {
                 Toast.makeText(this@StudentDashboardActivity, "Error: ${t.message}", Toast.LENGTH_SHORT).show()
                 Log.e("StudentDashboard", "Error loading all courses", t)
             }
@@ -173,10 +169,10 @@ class StudentDashboardActivity : AppCompatActivity() { // (Patel, 2025)
     /**
      * Show dialog to confirm enrollment in a course
      */
-    private fun showEnrollmentDialog(context: Context, course: CourseResponse) { // (Patel, 2025)
+    private fun showEnrollmentDialog(context: Context, course: CourseResponse) {
         Log.d("StudentDashboard", "Showing enrollment dialog for course: ${course.courseTitle}")
         val builder = AlertDialog.Builder(context)
-        builder.setTitle("Confirm Enrollment") // (Patel, 2025)
+        builder.setTitle("Confirm Enrollment")
         builder.setMessage("Are you sure you want to enroll in ${course.courseTitle}?")
         builder.setPositiveButton("Yes") { dialog, _ ->
             enrollInCourse(course)
@@ -184,16 +180,16 @@ class StudentDashboardActivity : AppCompatActivity() { // (Patel, 2025)
             dialog.dismiss()
         }
         builder.setNegativeButton("Cancel") { dialog, _ -> dialog.dismiss() }
-        builder.show() // (Patel, 2025)
+        builder.show()
     }
 
     /**
      * Enroll student in the selected course via API
      */
-    private fun enrollInCourse(course: CourseResponse) { // (Patel, 2025)
+    private fun enrollInCourse(course: CourseResponse) {
         Log.d("EnrollmentDebug", "Attempting to enroll in courseID: ${course.courseID}")
 
-        if (course.courseID.isBlank()) { // (Patel, 2025)
+        if (course.courseID.isBlank()) {
             Toast.makeText(this, "CourseID is blank! Cannot enroll.", Toast.LENGTH_SHORT).show()
             Log.e("EnrollmentDebug", "CourseID is blank")
             return
@@ -201,19 +197,23 @@ class StudentDashboardActivity : AppCompatActivity() { // (Patel, 2025)
 
         ApiClient.courseApi.enrollCourse(course.courseID).enqueue(object : Callback<Void> {
             override fun onResponse(call: Call<Void>, response: Response<Void>) {
-                if (response.isSuccessful) { // (Patel, 2025)
+                if (response.isSuccessful) {
                     Toast.makeText(this@StudentDashboardActivity, "Successfully enrolled in ${course.courseTitle}", Toast.LENGTH_SHORT).show()
                     Log.d("EnrollmentDebug", "Enrollment successful for courseID: ${course.courseID}")
+
+                    // Update the enrollment status in the adapter
+                    updateCourseEnrollmentStatus(course.courseID, true)
+
                     loadEnrolledCourses()
                     loadModulesForCourse(course.courseID, course.courseTitle)
-                } else { // (Patel, 2025)
+                } else {
                     val errorBody = response.errorBody()?.string()
                     Log.e("EnrollmentError", "Code: ${response.code()}, Body: $errorBody")
                     Toast.makeText(this@StudentDashboardActivity, "Enrollment failed: $errorBody", Toast.LENGTH_LONG).show()
                 }
             }
 
-            override fun onFailure(call: Call<Void>, t: Throwable) { // (Patel, 2025)
+            override fun onFailure(call: Call<Void>, t: Throwable) {
                 Toast.makeText(this@StudentDashboardActivity, "Error: ${t.message}", Toast.LENGTH_LONG).show()
                 Log.e("EnrollmentError", "API call failed", t)
             }
@@ -221,23 +221,50 @@ class StudentDashboardActivity : AppCompatActivity() { // (Patel, 2025)
     }
 
     /**
+     * Update the enrollment status for a specific course in the all courses list
+     */
+    private fun updateCourseEnrollmentStatus(courseId: String, isEnrolled: Boolean) {
+        try {
+            // Update the course in the allCourses list
+            val courseIndex = allCourses.indexOfFirst { it.courseID == courseId }
+            if (courseIndex != -1) {
+                // If your CourseResponse is a data class, you might need to create a copy with updated enrollment status
+                // This assumes your CourseAdapter can handle the isEnrolled field
+                Log.d("StudentDashboard", "Updating enrollment status for course: $courseId to $isEnrolled")
+
+                // If your adapter has the updateEnrollmentStatus method, use it
+                if (::adapterAll.isInitialized) {
+                    adapterAll.updateEnrollmentStatus(courseId, isEnrolled)
+                } else {
+                    // Fallback: reload all courses to reflect the change
+                    loadAllCourses()
+                }
+            }
+        } catch (e: Exception) {
+            Log.e("StudentDashboard", "Error updating enrollment status: ${e.message}")
+            // Fallback: reload the data
+            loadAllCourses()
+        }
+    }
+
+    /**
      * Load modules for the enrolled course and show a dialog listing them
      */
-    private fun loadModulesForCourse(courseId: String, courseTitle: String) { // (Patel, 2025)
+    private fun loadModulesForCourse(courseId: String, courseTitle: String) {
         Log.d("StudentDashboard", "Loading modules for course: $courseTitle")
         ApiClient.moduleApi.getModulesByCourse(courseId).enqueue(object : Callback<List<ModuleResponse>> {
             override fun onResponse(call: Call<List<ModuleResponse>>, response: Response<List<ModuleResponse>>) {
                 if (response.isSuccessful && response.body() != null) {
-                    val modules = response.body()!! // (Patel, 2025)
+                    val modules = response.body()!!
                     Log.d("StudentDashboard", "Modules loaded: ${modules.size}")
                     showModulesDialog(courseTitle, modules)
                 } else {
                     Toast.makeText(this@StudentDashboardActivity, "No modules found for this course", Toast.LENGTH_SHORT).show()
-                    Log.e("StudentDashboard", "No modules found for course: $courseTitle") // (Patel, 2025)
+                    Log.e("StudentDashboard", "No modules found for course: $courseTitle")
                 }
             }
 
-            override fun onFailure(call: Call<List<ModuleResponse>>, t: Throwable) { // (Patel, 2025)
+            override fun onFailure(call: Call<List<ModuleResponse>>, t: Throwable) {
                 Toast.makeText(this@StudentDashboardActivity, "Error loading modules: ${t.message}", Toast.LENGTH_SHORT).show()
                 Log.e("StudentDashboard", "Error loading modules", t)
             }
@@ -247,10 +274,10 @@ class StudentDashboardActivity : AppCompatActivity() { // (Patel, 2025)
     /**
      * Show dialog listing modules of the enrolled course
      */
-    private fun showModulesDialog(courseTitle: String, modules: List<ModuleResponse>) { // (Patel, 2025)
+    private fun showModulesDialog(courseTitle: String, modules: List<ModuleResponse>) {
         Log.d("StudentDashboard", "Showing modules dialog for course: $courseTitle")
         val builder = AlertDialog.Builder(this)
-        builder.setTitle("Modules in $courseTitle") // (Patel, 2025)
+        builder.setTitle("Modules in $courseTitle")
         val moduleNames = modules.joinToString("\n") { "• ${it.moduleTitle}" }
         builder.setMessage("You are now enrolled in $courseTitle.\n\nModules:\n$moduleNames")
         builder.setPositiveButton("OK") { dialog, _ -> dialog.dismiss() }
