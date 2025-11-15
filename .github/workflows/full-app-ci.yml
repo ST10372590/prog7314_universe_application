@@ -9,14 +9,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+
       - uses: actions/setup-node@v3
         with:
           node-version: 18
+
       - name: Install Firebase deps
-        working-directory: functions
+        working-directory: Universe/functions
         run: npm install
+
       - name: Build Firebase
-        working-directory: functions
+        working-directory: Universe/functions
         run: npm run build
 
   android:
@@ -24,11 +27,20 @@ jobs:
     needs: firebase
     steps:
       - uses: actions/checkout@v3
+
       - uses: actions/setup-java@v3
         with:
           distribution: temurin
           java-version: 17
+
+      - name: Make Gradlew executable
+        working-directory: Universe
+        run: chmod +x ./gradlew
+
       - name: Build Android App
+        working-directory: Universe
         run: ./gradlew assembleDebug
+
       - name: Test Android
+        working-directory: Universe
         run: ./gradlew test
