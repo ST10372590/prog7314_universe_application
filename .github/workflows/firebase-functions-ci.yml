@@ -1,0 +1,30 @@
+name: Firebase Backend CI
+
+on:
+  push:
+    paths:
+      - "functions/**"
+  pull_request:
+
+jobs:
+  firebase-ci:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install Node dependencies
+        working-directory: functions
+        run: npm install
+
+      - name: Lint Backend Code
+        working-directory: functions
+        run: npm run lint --if-present
+
+      - name: Build Firebase Functions
+        working-directory: functions
+        run: npm run build
