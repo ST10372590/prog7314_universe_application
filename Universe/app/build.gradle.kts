@@ -58,7 +58,7 @@ dependencies {
     implementation("com.google.android.gms:play-services-auth:20.7.0")
 
     // DataStore
-    implementation("androidx.datastore:datastore-preferences:1.0.0")
+    implementation("androidx.datastore:datastore-preferences:1.1.7")
 
     // Firebase
     implementation(platform("com.google.firebase:firebase-bom:34.4.0"))
