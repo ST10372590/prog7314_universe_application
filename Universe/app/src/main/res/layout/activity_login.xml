@@ -3,22 +3,24 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F8E6E0"
+    android:background="#FFFFFF"
+    android:fillViewport="true"
     tools:context=".LoginActivity">
 
     <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="24dp"
-        android:gravity="center"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:gravity="center_horizontal">
 
         <!-- App Logo -->
         <ImageView
             android:id="@+id/imgLogo"
             android:layout_width="120dp"
             android:layout_height="120dp"
-            android:layout_marginBottom="24dp"
+            android:layout_marginTop="32dp"
+            android:layout_marginBottom="16dp"
             android:src="@drawable/unilogo"
             android:contentDescription="App Logo" />
 
@@ -27,105 +29,118 @@
             android:id="@+id/tvLoginTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
             android:text="Welcome Back!"
+            android:textColor="#020000"
             android:textSize="22sp"
-            android:textStyle="bold"
-            android:textColor="#4E342E"
-            android:layout_marginBottom="8dp" />
+            android:textStyle="bold" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Login to continue your journey in Universe."
+            android:text="Login to continue your journey in Universe"
             android:textSize="14sp"
             android:textColor="#6D4C41"
-            android:layout_marginBottom="24dp" />
+            android:layout_marginBottom="32dp" />
 
-        <!-- Username Field -->
-        <androidx.cardview.widget.CardView
-            android:layout_width="332dp"
+        <!-- Username Label -->
+        <TextView
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp">
+            android:text="Username"
+            android:textSize="14sp"
+            android:textColor="#4E342E"
+            android:layout_marginBottom="4dp" />
 
-            <EditText
-                android:id="@+id/etUsername"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@android:color/transparent"
-                android:hint="Username"
-                android:padding="12dp"
-                android:textColor="#000"
-                android:textSize="16sp" />
-        </androidx.cardview.widget.CardView>
+        <!-- Username Input -->
+        <EditText
+            android:id="@+id/etUsername"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:hint="Enter your username"
+            android:paddingHorizontal="12dp"
+            android:background="@drawable/edittext_background"
+            android:textColor="#000"
+            android:textSize="16sp"
+            android:layout_marginBottom="16dp" />
 
-        <!-- Password Field -->
-        <androidx.cardview.widget.CardView
-            android:layout_width="337dp"
+        <!-- Password Label -->
+        <TextView
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="24dp">
+            android:text="Password"
+            android:textSize="14sp"
+            android:textColor="#4E342E"
+            android:layout_marginBottom="4dp" />
 
-            <EditText
-                android:id="@+id/etPassword"
-                android:layout_width="334dp"
-                android:layout_height="wrap_content"
-                android:background="@android:color/transparent"
-                android:hint="Password"
-                android:inputType="textPassword"
-                android:padding="12dp"
-                android:textColor="#000"
-                android:textSize="16sp" />
-        </androidx.cardview.widget.CardView>
+        <!-- Password Input -->
+        <EditText
+            android:id="@+id/etPassword"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:hint="Enter your password"
+            android:inputType="textPassword"
+            android:paddingHorizontal="12dp"
+            android:background="@drawable/edittext_background"
+            android:textColor="#000"
+            android:textSize="16sp"
+            android:layout_marginBottom="32dp" />
 
         <!-- Login Button -->
+        <TextView
+            android:id="@+id/btnGoRegister"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="32dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:text="Don't have an account? Register here"
+            android:textColor="#800000"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
         <Button
             android:id="@+id/btnLogin"
-            android:layout_width="212dp"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
+            android:layout_width="200dp"
+            android:layout_height="48dp"
             android:backgroundTint="#800000"
+            android:elevation="3dp"
             android:fontFamily="sans-serif-medium"
-            android:padding="12dp"
             android:text="Login"
             android:textAllCaps="false"
-            android:textColor="#FFFFFF" />
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            android:layout_marginBottom="16dp" />
 
         <!-- Google Login Button -->
         <Button
             android:id="@+id/btnGoogleLogin"
-            android:layout_width="216dp"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
+            android:layout_width="200dp"
+            android:layout_height="48dp"
             android:backgroundTint="#A0522D"
+            android:elevation="3dp"
             android:fontFamily="sans-serif-medium"
-            android:padding="12dp"
             android:text="Login with Google"
             android:textAllCaps="false"
-            android:textColor="#FFFFFF" />
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            android:layout_marginBottom="16dp" />
 
         <!-- Biometric Login Button -->
         <Button
             android:id="@+id/btnBiometricLogin"
-            android:layout_width="216dp"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
+            android:layout_width="200dp"
+            android:layout_height="48dp"
             android:backgroundTint="#5D4037"
+            android:elevation="3dp"
             android:fontFamily="sans-serif-medium"
-            android:padding="12dp"
             android:text="Login with Biometrics"
             android:textAllCaps="false"
-            android:textColor="#FFFFFF" />
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            android:layout_marginBottom="24dp" />
 
-        <!-- Register Navigation -->
-        <Button
-            android:id="@+id/btnGoRegister"
-            android:layout_width="218dp"
-            android:layout_height="wrap_content"
-            android:backgroundTint="#B22222"
-            android:fontFamily="sans-serif-medium"
-            android:padding="12dp"
-            android:text="Go to Register"
-            android:textAllCaps="false"
-            android:textColor="#FFFFFF" />
+        <!-- Register as Link -->
 
     </LinearLayout>
 </ScrollView>

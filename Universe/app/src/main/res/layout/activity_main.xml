@@ -4,83 +4,119 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F5E6E0"
+    android:background="@drawable/bg_half_maroon"
     android:padding="24dp"
     tools:context=".MainActivity">
 
-    <!-- Logo at the top -->
+    <!-- App Logo -->
     <ImageView
         android:id="@+id/imgLogo"
-        android:layout_width="193dp"
-        android:layout_height="150dp"
-        android:layout_marginTop="16dp"
+        android:layout_width="245dp"
+        android:layout_height="149dp"
+        android:layout_marginTop="60dp"
         android:contentDescription="App Logo"
         android:src="@drawable/unilogo"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- App Title -->
-
-    <!-- Summary -->
-
-    <!-- Go to Register Button -->
-
-    <!-- Go to Login Button -->
+    <!-- Title -->
     <TextView
         android:id="@+id/tvTitle"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="24dp"
         android:text="Welcome to Universe"
-        android:textAlignment="center"
         android:textColor="#800000"
-        android:textSize="26sp"
+        android:textSize="24sp"
         android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
+        android:fontFamily="sans-serif-medium"
+        app:layout_constraintTop_toBottomOf="@id/imgLogo"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/imgLogo" />
+        app:layout_constraintEnd_toEndOf="parent" />
 
+    <!-- Summary -->
     <TextView
         android:id="@+id/tvSummary"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="36dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
         android:gravity="center"
-        android:padding="16dp"
-        android:text="Universe is a platform for students and lecturers to connect, manage courses, submit claims, and stay updated with notifications. Explore and collaborate seamlessly."
-        android:textColor="#4D0000"
-        android:textSize="16sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
+        android:lineSpacingExtra="4dp"
+        android:text="A platform for students and lecturers to connect, manage courses, submit claims, and stay updated — all in one place."
+        android:textAlignment="center"
+        android:textColor="#555555"
+        android:textSize="15sp"
+        android:fontFamily="sans-serif"
+        app:layout_constraintTop_toBottomOf="@id/tvTitle"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvTitle" />
+        app:layout_constraintEnd_toEndOf="parent" />
 
-    <Button
-        android:id="@+id/btnGoRegister"
-        android:layout_width="219dp"
-        android:layout_height="57dp"
-        android:layout_marginTop="36dp"
-        android:backgroundTint="#800000"
-        android:padding="12dp"
-        android:text="Go to Register"
-        android:textColor="#FFFFFF"
-        app:layout_constraintEnd_toEndOf="parent"
+    <!-- Floating Card for Buttons -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardButtons"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginEnd="32dp"
+        android:padding="20dp"
+        app:cardCornerRadius="20dp"
+        app:cardElevation="8dp"
+        app:cardBackgroundColor="#FFFFFF"
+        app:layout_constraintTop_toBottomOf="@id/tvSummary"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvSummary" />
+        app:layout_constraintEnd_toEndOf="parent">
 
-    <Button
-        android:id="@+id/btnGoLogin"
-        android:layout_width="157dp"
-        android:layout_height="53dp"
-        android:layout_marginTop="36dp"
-        android:backgroundTint="#800000"
-        android:padding="12dp"
-        android:text="Go to Login"
-        android:textColor="#FFFFFF"
-        app:layout_constraintEnd_toEndOf="parent"
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="187dp"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp">
+
+            <Button
+                android:id="@+id/btnGoRegister"
+                android:layout_width="200dp"
+                android:layout_height="48dp"
+                android:layout_marginBottom="16dp"
+                android:backgroundTint="#800000"
+                android:elevation="3dp"
+                android:fontFamily="sans-serif-medium"
+                android:text="Register"
+                android:textAllCaps="false"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp" />
+
+            <Button
+                android:id="@+id/btnGoLogin"
+                android:layout_width="200dp"
+                android:layout_height="48dp"
+                android:backgroundTint="#800000"
+                android:elevation="3dp"
+                android:fontFamily="sans-serif-medium"
+                android:text="Login"
+                android:textAllCaps="false"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp" />
+
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- Footer -->
+    <TextView
+        android:id="@+id/tvFooter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        android:text="© 2025 Universe App"
+        android:textColor="#AAAAAA"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btnGoRegister" />
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
