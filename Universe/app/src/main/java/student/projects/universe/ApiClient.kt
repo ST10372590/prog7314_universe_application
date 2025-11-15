@@ -1,6 +1,7 @@
 package student.projects.universe
 
 import android.content.Context
+import android.util.Log
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -11,7 +12,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
 object ApiClient {
-    private const val BASE_URL = "http://10.0.2.2:5086/"
+    private const val BASE_URL = "https://prog7314-part2-restapi.onrender.com "
 
     // Token storage
     private var token: String? = null
@@ -26,9 +27,11 @@ object ApiClient {
     fun getToken(): String? = token
 
     /** Clears the token and user ID on logout */
+    /** Clears the token and user ID on logout */
     fun clearToken() {
         token = null
         currentUserId = 0
+        Log.d("ApiClient", "Token and user ID cleared")
     }
 
     // Interceptor to add Authorization header

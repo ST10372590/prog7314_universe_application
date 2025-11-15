@@ -84,6 +84,10 @@ data class CourseResponse(
     val startDate: String,
     val endDate: String,
     val lecturerID: Int,
+    val isActive: Boolean? = true,
+    val isEnrolled: Boolean? = false,
+    val studentCount: Int? = 0,
+    val moduleCount: Int? = 0,
     val modules: List<ModuleResponse> = emptyList(),
     val assessments: List<AssessmentResponse> = emptyList()
 )
@@ -98,7 +102,9 @@ data class SubmissionResponse(
     val fileLink: String?,
     val submittedAt: String,
     val grade: Double,
-    val feedback: String?
+    val feedback: String?,
+    val maxMarks: Double? = 100.0,
+    val gradedBy: String? = "Instructor"
 )
 
 

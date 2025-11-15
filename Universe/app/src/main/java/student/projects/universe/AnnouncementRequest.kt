@@ -23,14 +23,18 @@ data class MessageResponse(
 
 data class AnnouncementRequest(
     val title: String,
-    val content: String
+    val content: String,
+    val moduleId: String,
+    val moduleTitle: String
 )
 
 data class AnnouncementResponse(
     val id: Int,
     val title: String,
     val content: String,
-    val date: String
+    val date: String,
+    val moduleId: String,
+    val moduleTitle: String
 )
 
 data class GroupMessageRequest(

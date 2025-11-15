@@ -45,6 +45,9 @@ interface UserApi {
     @GET("users/me")
     fun getCurrentUser(): Call<UserResponse>
 
+    @POST("users/device-token")
+    fun registerDeviceToken(@Body request: DeviceTokenRequest): Call<Void>
+
     // ✅ Retrieve a list of all registered students
     @GET("users/students")
     fun getAllStudents(): Call<List<UserResponse>>
@@ -166,13 +169,12 @@ interface LecturerApi {
 // Announcement endpoints (Aram, 2023)
 // ==============================
 interface AnnouncementApi {
+    @GET("api/announcements/module/{moduleId}")
+    fun getAnnouncementsByModule(@Path("moduleId") moduleId: String): Call<List<AnnouncementResponse>>
 
-    // Retrieve all announcements visible to the current user (Appmaster, 2023)
-    @GET("announcements")
-    fun getAnnouncements(): Call<List<AnnouncementResponse>>
-
-    // Create a new announcement (lecturer or coordinator)
-    @POST("announcements")
+    @GET("api/announcements")
+    fun getAllAnnouncements(): Call<List<AnnouncementResponse>>
+    @POST("api/announcements")
     fun createAnnouncement(@Body announcement: AnnouncementRequest): Call<AnnouncementResponse>
 }
 

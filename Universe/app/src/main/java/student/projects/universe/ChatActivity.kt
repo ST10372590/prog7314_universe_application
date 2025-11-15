@@ -42,6 +42,8 @@ class ChatActivity : AppCompatActivity() {
     private val messageApi = ApiClient.messageApi
     private val db = FirebaseDatabase.getInstance().reference
 
+    private lateinit var dbHelper: DatabaseHelper
+
     private var currentUserId = 0
     private var receiverId = 0
     private var receiverName: String? = null
@@ -54,15 +56,16 @@ class ChatActivity : AppCompatActivity() {
 
     // Typing indicator related
     private var typing = false
-    private val typingTimeout = 1500L // 1.5 seconds
+    private val typingTimeout = 1500L
     private val typingHandler = Handler(Looper.getMainLooper())
 
-    // Firebase listener reference to detach later if needed
     private var messagesListener: ChildEventListener? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chat)
+
+        dbHelper = DatabaseHelper(this)
 
         tvChatHeader = findViewById(R.id.tvChatHeader)
         tvTypingIndicator = findViewById(R.id.tvTypingIndicator)
@@ -98,7 +101,6 @@ class ChatActivity : AppCompatActivity() {
             }
         }
 
-        // Typing status update on text change
         etMessage.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
@@ -128,39 +130,97 @@ class ChatActivity : AppCompatActivity() {
     override fun onPause() {
         super.onPause()
         isChatVisible = false
-        setTypingStatus(false)  // Reset typing indicator on leaving chat
-        // Optionally remove Firebase listener if you want to avoid duplicates on resume
-        messagesListener?.let { db.child("conversations").child(convId).child("messages").removeEventListener(it) }
+        setTypingStatus(false)
+        messagesListener?.let {
+            db.child("conversations").child(convId).child("messages").removeEventListener(it)
+        }
         messagesListener = null
     }
 
     private fun loadConversationHistory() {
-        messageApi.getConversation(currentUserId, receiverId).enqueue(object : Callback<List<MessageResponse>> {
-            override fun onResponse(call: Call<List<MessageResponse>>, response: Response<List<MessageResponse>>) {
-                if (response.isSuccessful && response.body() != null) {
-                    messages.clear()
-                    messages.addAll(response.body()!!)
-                    adapter.notifyDataSetChanged()
-                    recyclerMessages.scrollToPosition(messages.size - 1)
-                    startListeningForMessages() // Start Firebase listener after loading history
-                } else {
-                    Toast.makeText(this@ChatActivity, "No previous messages found.", Toast.LENGTH_SHORT).show()
-                    // Still start listener for new messages
+        if (isOnline()) {
+            messageApi.getConversation(currentUserId, receiverId).enqueue(object : Callback<List<MessageResponse>> {
+                override fun onResponse(call: Call<List<MessageResponse>>, response: Response<List<MessageResponse>>) {
+                    if (response.isSuccessful && response.body() != null) {
+                        messages.clear()
+                        messages.addAll(response.body()!!)
+
+                        // Convert MessageResponse to ChatMessageEntity for SQLite storage
+                        val chatMessageEntities = messages.map { msg ->
+                            ChatMessageEntity(
+                                messageId = msg.messageID,
+                                senderId = msg.senderID,
+                                receiverId = msg.receiverID,
+                                content = msg.content,
+                                timestamp = msg.timestamp,
+                                readStatus = msg.readStatus,
+                                fileAttachment = msg.fileAttachment
+                            )
+                        }
+
+                        // Fix null or blank timestamps before saving to SQLite
+                        val safeChatMessages = chatMessageEntities.map {
+                            if (it.timestamp.isNullOrBlank()) it.copy(timestamp = getCurrentTimestamp()) else it
+                        }
+
+                        // Save messages in local SQLite cache
+                        dbHelper.insertOrUpdateMessages(safeChatMessages)
+
+                        adapter.notifyDataSetChanged()
+                        recyclerMessages.scrollToPosition(messages.size - 1)
+                        startListeningForMessages()
+                    } else {
+                        Toast.makeText(this@ChatActivity, "No previous messages found.", Toast.LENGTH_SHORT).show()
+                        loadMessagesFromCache()
+                        startListeningForMessages()
+                    }
+                }
+
+                fun getCurrentTimestamp(): String {
+                    val sdf = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", java.util.Locale.getDefault())
+                    sdf.timeZone = java.util.TimeZone.getTimeZone("UTC")
+                    return sdf.format(java.util.Date())
+                }
+
+
+                override fun onFailure(call: Call<List<MessageResponse>>, t: Throwable) {
+                    Toast.makeText(this@ChatActivity, "Failed to load chat history: ${t.localizedMessage}", Toast.LENGTH_LONG).show()
+                    loadMessagesFromCache()
                     startListeningForMessages()
                 }
-            }
-
-            override fun onFailure(call: Call<List<MessageResponse>>, t: Throwable) {
-                Toast.makeText(this@ChatActivity, "Failed to load chat history: ${t.localizedMessage}", Toast.LENGTH_LONG).show()
-                // Start listener anyway so new messages come in
-                startListeningForMessages()
-            }
-        })
+            })
+        } else {
+            loadMessagesFromCache()
+            startListeningForMessages()
+        }
     }
+
+
+
+    private fun loadMessagesFromCache() {
+        messages.clear()
+        val cachedMessages = dbHelper.getConversationMessages(currentUserId, receiverId)
+        val convertedMessages = cachedMessages.map { entity ->
+            MessageResponse(
+                messageID = entity.messageId,
+                senderID = entity.senderId,
+                receiverID = entity.receiverId,
+                content = entity.content,
+                timestamp = entity.timestamp,
+                readStatus = entity.readStatus,
+                fileAttachment = entity.fileAttachment
+            )
+        }
+        messages.addAll(convertedMessages)
+        adapter.notifyDataSetChanged()
+        recyclerMessages.scrollToPosition(messages.size - 1)
+    }
+
+
 
     private fun startListeningForMessages() {
         val messagesRef = db.child("conversations").child(convId).child("messages")
-        if (messagesListener != null) return // already listening
+        if (messagesListener != null) return
 
         messagesListener = object : ChildEventListener {
             override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
@@ -175,23 +235,33 @@ class ChatActivity : AppCompatActivity() {
                     fileAttachment = msg.fileUrl ?: null
                 )
 
-                // Avoid adding duplicates that came from backend loading
                 if (messages.any { it.messageID == resp.messageID }) return
 
                 messages.add(resp)
                 adapter.notifyItemInserted(messages.size - 1)
                 recyclerMessages.scrollToPosition(messages.size - 1)
 
-                if (msg.senderId != currentUserId && !isChatVisible) {
-                    showLocalNotification(msg)
-                }
+                val chatEntity = ChatMessageEntity(
+                    messageId = resp.messageID,
+                    senderId = resp.senderID,
+                    receiverId = resp.receiverID,
+                    content = resp.content,
+                    timestamp = resp.timestamp,
+                    readStatus = resp.readStatus,
+                    fileAttachment = resp.fileAttachment
+                )
+                dbHelper.insertOrUpdateMessage(chatEntity)
 
-                if (msg.senderId != currentUserId && isChatVisible) {
-                    snapshot.ref.child("read").setValue(true)
-                    resetUnreadCounterFor(currentUserId)
+                if (msg.senderId != currentUserId) {
+                    // Removed local notification here to rely on FCM
+                    // showLocalNotification(msg)
+
+                    if (isChatVisible) {
+                        snapshot.ref.child("read").setValue(true)
+                        resetUnreadCounterFor(currentUserId)
+                    }
                 }
             }
-
             override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {}
             override fun onChildRemoved(snapshot: DataSnapshot) {}
             override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {}
@@ -212,10 +282,48 @@ class ChatActivity : AppCompatActivity() {
             readStatus = "Unread"
         )
 
+        // Insert locally immediately with temp ID (e.g., 0 or negative)
+        val localMessage = MessageResponse(
+            messageID = 0, // temporary ID
+            senderID = currentUserId,
+            receiverID = receiverId,
+            content = text,
+            readStatus = "Unread",
+            timestamp = isoNow(),
+            fileAttachment = null
+        )
+        messages.add(localMessage)
+        adapter.notifyItemInserted(messages.size - 1)
+        recyclerMessages.scrollToPosition(messages.size - 1)
+
+        val chatEntity = ChatMessageEntity(
+            messageId = localMessage.messageID,
+            senderId = localMessage.senderID,
+            receiverId = localMessage.receiverID,
+            content = localMessage.content,
+            timestamp = localMessage.timestamp,
+            readStatus = localMessage.readStatus,
+            fileAttachment = localMessage.fileAttachment
+        )
+
+        dbHelper.insertOrUpdateMessage(chatEntity)
+
+
         messageApi.sendMessage(msgRequest).enqueue(object : Callback<MessageResponse> {
             override fun onResponse(call: Call<MessageResponse>, response: Response<MessageResponse>) {
                 if (response.isSuccessful && response.body() != null) {
                     val body = response.body()!!
+
+                    // Update local cache replacing temp message
+                    dbHelper.updateMessageWithServerResponse(localMessage.messageID, body)
+
+                    // Update UI message in list
+                    val index = messages.indexOf(localMessage)
+                    if (index >= 0) {
+                        messages[index] = body
+                        adapter.notifyItemChanged(index)
+                    }
+
                     pushMessageToFirebase(body)
                     etMessage.text.clear()
                 } else {
@@ -266,13 +374,16 @@ class ChatActivity : AppCompatActivity() {
 
     private fun resetUnreadCounterFor(userId: Int) {
         val metaRef = db.child("conversations").child(convId).child("meta")
-        val key = "unread_${userId}"
+        val key = "unread_$userId"
         metaRef.child(key).setValue(0)
     }
 
-    private fun getConversationId(a: Int, b: Int): String {
-        return if (a < b) "${a}_${b}" else "${b}_${a}"
+    private fun getConversationId(userId1: Int, userId2: Int): String {
+        val first = minOf(userId1, userId2)
+        val second = maxOf(userId1, userId2)
+        return "${first}_${second}"
     }
+
 
     private fun isoNow(): String {
         val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US)
@@ -316,8 +427,6 @@ class ChatActivity : AppCompatActivity() {
         }
     }
 
-    // --- TYPING STATUS HANDLING ---
-
     private fun setTypingStatus(isTyping: Boolean) {
         val typingRef = db.child("conversations").child(convId).child("typing_$currentUserId")
         typingRef.setValue(isTyping)
@@ -335,185 +444,11 @@ class ChatActivity : AppCompatActivity() {
             }
         })
     }
-}
 
-
-
-
-/*
-package student.projects.universe
-
-import android.os.Bundle
-import android.util.Log // <-- Added for debugging logs
-import android.widget.EditText
-import android.widget.ImageButton
-import android.widget.TextView
-import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-
-class ChatActivity : AppCompatActivity() { //(Aram, 2023)
-
-    // UI components
-    private lateinit var tvChatHeader: TextView
-    private lateinit var recyclerMessages: RecyclerView
-    private lateinit var etMessage: EditText
-    private lateinit var btnSend: ImageButton
-
-    // Adapter for message display
-    private lateinit var adapter: MessageAdapter
-    private val messages = mutableListOf<MessageResponse>() //(Aram, 2023)
-
-    // Retrofit message API
-    private val messageApi = ApiClient.messageApi
-
-    // Current user and receiver info // (Patel, 2025)
-    private var currentUserId = 0
-    private var receiverId = 0
-    private var receiverName: String? = null
-
-    override fun onCreate(savedInstanceState: Bundle?) { //(Aram, 2023)
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_chat)
-
-        Log.d("ChatActivity", "onCreate: Initializing ChatActivity")
-
-        // Initialize views // (Patel, 2025)
-        tvChatHeader = findViewById(R.id.tvChatHeader)
-        recyclerMessages = findViewById(R.id.recyclerMessages)
-        etMessage = findViewById(R.id.etMessage)
-        btnSend = findViewById(R.id.btnSend)
-
-        // Retrieve IDs from API client and Intent
-        currentUserId = ApiClient.currentUserId
-        receiverId = intent.getIntExtra("receiverId", 0)
-        receiverName = intent.getStringExtra("receiverName")
-
-        // Validate IDs // (Patel, 2025)
-        if (currentUserId == 0 || receiverId == 0) {
-            Log.e("ChatActivity", "Invalid chat IDs -> currentUserId=$currentUserId, receiverId=$receiverId")
-            Toast.makeText(this, "Invalid chat IDs", Toast.LENGTH_LONG).show()
-            finish()
-            return
-        }
-
-        tvChatHeader.text = "Chat with ${receiverName ?: "Student"}"
-        Log.d("ChatActivity", "Chat header set for receiver: ${receiverName ?: "Student"}") //(Aram, 2023)
-
-        // RecyclerView setup for chat messages // (Patel, 2025)
-        recyclerMessages.layoutManager = LinearLayoutManager(this)
-        adapter = MessageAdapter(messages, currentUserId)
-        recyclerMessages.adapter = adapter
-        Log.d("ChatActivity", "RecyclerView initialized with MessageAdapter")
-
-        // Load all messages from API
-        loadMessages()
-
-        // Handle send button click
-        btnSend.setOnClickListener { //(Aram, 2023)
-            val text = etMessage.text.toString().trim()
-            if (text.isNotEmpty()) {
-                Log.d("ChatActivity", "Send button clicked with message: $text")
-                sendMessage(text)
-            } else {
-                Log.w("ChatActivity", "Empty message attempted to send") //(Aram, 2023)
-                Toast.makeText(this, "Please enter a message", Toast.LENGTH_SHORT).show()
-            }
-        }
-    }
-
-    // Loads chat conversation messages from server //(Aram, 2023)
-    private fun loadMessages() {
-        Log.d("ChatActivity", "Loading messages between $currentUserId and $receiverId") // (Patel, 2025)
-
-        messageApi.getConversation(currentUserId, receiverId)
-            .enqueue(object : Callback<List<MessageResponse>> {
-                override fun onResponse(
-                    call: Call<List<MessageResponse>>,
-                    response: Response<List<MessageResponse>> //(Aram, 2023)
-                ) {
-                    Log.d("ChatActivity", "Load messages response: ${response.code()}")
-                    if (response.isSuccessful && response.body() != null) {
-                        messages.clear()
-                        messages.addAll(response.body()!!)
-                        adapter.notifyDataSetChanged()
-                        recyclerMessages.scrollToPosition(messages.size - 1)
-                        Log.d("ChatActivity", "Messages loaded successfully: ${messages.size} messages") //(Aram, 2023)
-                    } else {
-                        Log.e("ChatActivity", "Failed to load messages. Code: ${response.code()}")
-                        Toast.makeText(
-                            this@ChatActivity,
-                            "No messages found. Response code: ${response.code()}", //(Aram, 2023)
-                            Toast.LENGTH_LONG
-                        ).show()
-                    }
-                }
-
-                override fun onFailure(call: Call<List<MessageResponse>>, t: Throwable) { //(Aram, 2023)
-                    Log.e("ChatActivity", "Error loading messages: ${t.localizedMessage}")
-                    Toast.makeText(
-                        this@ChatActivity,
-                        "Failed to load messages: ${t.localizedMessage}", // (Patel, 2025)
-                        Toast.LENGTH_LONG
-                    ).show()
-                }
-            })
-    }
-
-    // Sends a new message via API // (Patel, 2025)
-    private fun sendMessage(content: String) {
-        Log.d("ChatActivity", "Preparing to send message: \"$content\"")
-
-        // Create message request // (Patel, 2025)
-        val msgRequest = MessageRequest(
-            senderID = currentUserId,   // Sender user ID
-            receiverID = receiverId,    // Receiver user ID
-            content = content,          // Message text
-            fileAttachment = null,      // No file attached
-            readStatus = "Unread"       // Default read status
-        )
-
-        Log.d("ChatActivity", "MessageRequest created: senderID=${msgRequest.senderID}, receiverID=${msgRequest.receiverID}")
-
-        // Send message through API // (Patel, 2025)
-        messageApi.sendMessage(msgRequest)
-            .enqueue(object : Callback<MessageResponse> {
-                override fun onResponse(
-                    call: Call<MessageResponse>,
-                    response: Response<MessageResponse>
-                ) {
-                    Log.d("ChatActivity", "Send message response code: ${response.code()}") //(Aram, 2023)
-                    if (response.isSuccessful && response.body() != null) {
-                        // Add new message to list and refresh UI // (Patel, 2025)
-                        messages.add(response.body()!!)
-                        adapter.notifyItemInserted(messages.size - 1)
-                        recyclerMessages.scrollToPosition(messages.size - 1)
-                        etMessage.text.clear()
-                        Log.d("ChatActivity", "Message sent successfully and added to chat") //(Aram, 2023)
-                    } else {
-                        val errorBody = response.errorBody()?.string()
-                        Log.e("ChatActivity", "Failed to send message. Code: ${response.code()}, Error: $errorBody")
-                        Toast.makeText(
-                            this@ChatActivity,
-                            "Failed to send message. Code: ${response.code()} Body: $errorBody",
-                            Toast.LENGTH_LONG
-                        ).show()
-                    }
-                }
-
-                override fun onFailure(call: Call<MessageResponse>, t: Throwable) { //(Aram, 2023)
-                    Log.e("ChatActivity", "Error sending message: ${t.localizedMessage}")
-                    Toast.makeText(
-                        this@ChatActivity,
-                        "Error sending message: ${t.localizedMessage}",
-                        Toast.LENGTH_LONG // (Patel, 2025)
-                    ).show()
-                }
-            })
+    private fun isOnline(): Boolean {
+        val cm = getSystemService(Context.CONNECTIVITY_SERVICE) as android.net.ConnectivityManager
+        val net = cm.activeNetworkInfo
+        return net?.isConnectedOrConnecting == true
     }
 }
 

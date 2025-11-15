@@ -2,6 +2,7 @@ package student.projects.universe
 
 import android.os.Bundle
 import android.util.Log
+import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -14,41 +15,84 @@ import retrofit2.Response
 class CourseModulesActivity : AppCompatActivity() {
 
     private lateinit var tvCourseTitle: TextView
+    private lateinit var tvCourseCode: TextView
+    private lateinit var tvModuleCount: TextView
+    private lateinit var tvSort: TextView
+    private lateinit var btnBack: ImageButton
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: StudentModuleAdapter
     private val modules = mutableListOf<ModuleResponse>()
     private var courseId: String? = null
+    private var courseTitle: String? = null
+
+    companion object {
+        private const val TAG = "CourseModulesActivity"
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_course_modules)
 
-        // Initialize UI components
-        tvCourseTitle = findViewById(R.id.tvCourseTitle)
-        recyclerView = findViewById(R.id.recyclerViewModules)
+        initializeViews()
+        setupRecyclerView()
+        loadIntentData()
+        setupClickListeners()
 
-        // Setup RecyclerView with adapter
+        courseId?.let {
+            loadModules(it)
+        } ?: run {
+            Log.e(TAG, "No course ID found — cannot load modules")
+            Toast.makeText(this, "Error: No course information", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun initializeViews() {
+        // Header and navigation
+        btnBack = findViewById(R.id.btnBack)
+
+        // Course info card
+        tvCourseTitle = findViewById(R.id.tvCourseTitle)
+        tvCourseCode = findViewById(R.id.tvCourseCode)
+        tvModuleCount = findViewById(R.id.tvModuleCount)
+
+        // Modules section
+        tvSort = findViewById(R.id.tvSort)
+        recyclerView = findViewById(R.id.recyclerViewModules)
+    }
+
+    private fun setupRecyclerView() {
         adapter = StudentModuleAdapter(modules, this)
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.adapter = adapter
-
-        // Get data passed from previous Activity
-        val courseTitle = intent.getStringExtra("COURSE_TITLE")
-        courseId = intent.getStringExtra("COURSE_ID")
-        tvCourseTitle.text = courseTitle ?: "Modules"
-
-        Log.d("CourseModulesActivity", "Opened CourseModulesActivity for: $courseTitle (ID: $courseId)")
-
-        // Load modules
-        courseId?.let {
-            loadModules(it)
-        } ?: Log.e("CourseModulesActivity", "No course ID found — cannot load modules")
     }
 
-    /**
-     * Loads modules from API.
-     * If a module has a new assessment, it sets hasNewAssessment = true
-     */
+    private fun loadIntentData() {
+        courseTitle = intent.getStringExtra("COURSE_TITLE")
+        courseId = intent.getStringExtra("COURSE_ID")
+
+        updateCourseInfoUI()
+
+        Log.d(TAG, "Opened CourseModulesActivity for: $courseTitle (ID: $courseId)")
+    }
+
+    private fun updateCourseInfoUI() {
+        tvCourseTitle.text = courseTitle ?: "Course Title"
+        tvCourseCode.text = "Course Code: $courseId"
+
+        // Update module count (will be updated when modules load)
+        tvModuleCount.text = "${modules.size} Modules"
+    }
+
+    private fun setupClickListeners() {
+        btnBack.setOnClickListener {
+            onBackPressed()
+        }
+
+        tvSort.setOnClickListener {
+            showSortOptions()
+        }
+    }
+
     private fun loadModules(courseId: String) {
         ApiClient.moduleApi.getModulesByCourse(courseId).enqueue(object : Callback<List<ModuleResponse>> {
             override fun onResponse(
@@ -59,60 +103,93 @@ class CourseModulesActivity : AppCompatActivity() {
                     modules.clear()
                     val apiModules = response.body()!!
 
-                    // For each module, check if it has a new assessment asynchronously
-                    apiModules.forEach { module ->
-                        ApiClient.assessmentApi.getAssessmentsByModule(module.moduleID)
-                            .enqueue(object : Callback<List<AssessmentResponse>> {
-                                override fun onResponse(
-                                    call: Call<List<AssessmentResponse>>,
-                                    assessmentResponse: Response<List<AssessmentResponse>>
-                                ) {
-                                    val hasNew = !assessmentResponse.body().isNullOrEmpty()
-                                    // Update module with hasNewAssessment flag
-                                    val updatedModule = module.copy(hasNewAssessment = hasNew)
-
-                                    // Remove old module if exists, then add updated one
-                                    modules.removeAll { it.moduleID == updatedModule.moduleID }
-                                    modules.add(updatedModule)
-
-                                    // Notify adapter after each update
-                                    adapter.notifyDataSetChanged()
-                                }
-
-                                override fun onFailure(call: Call<List<AssessmentResponse>>, t: Throwable) {
-                                    Log.e("CourseModulesActivity", "Failed to check assessment for module ${module.moduleTitle}", t)
-                                }
-                            })
+                    if (apiModules.isEmpty()) {
+                        Toast.makeText(this@CourseModulesActivity, "No modules available for this course", Toast.LENGTH_SHORT).show()
+                        updateModuleCount()
+                        return
                     }
 
-                    Log.i("CourseModulesActivity", "Loaded ${modules.size} modules successfully for courseId=$courseId")
+                    // Load modules and check for assessments
+                    var modulesProcessed = 0
+                    apiModules.forEach { module ->
+                        checkForNewAssessments(module) { updatedModule ->
+                            // Use synchronized block to prevent race conditions
+                            synchronized(modules) {
+                                // Remove any existing module with same ID before adding
+                                modules.removeAll { it.moduleID == updatedModule.moduleID }
+                                modules.add(updatedModule)
+                            }
+
+                            modulesProcessed++
+
+                            // Update UI when all modules are processed
+                            if (modulesProcessed == apiModules.size) {
+                                updateModuleCount()
+                                adapter.notifyDataSetChanged()
+                                Log.i(TAG, "Loaded ${modules.size} modules successfully for courseId=$courseId")
+                            }
+                        }
+                    }
+
                 } else {
-                    Toast.makeText(this@CourseModulesActivity, "No modules found", Toast.LENGTH_SHORT).show()
-                    Log.w("CourseModulesActivity", "No modules found or empty response for courseId=$courseId")
+                    Toast.makeText(this@CourseModulesActivity, "Failed to load modules", Toast.LENGTH_SHORT).show()
+                    Log.w(TAG, "No modules found or empty response for courseId=$courseId")
                 }
             }
 
             override fun onFailure(call: Call<List<ModuleResponse>>, t: Throwable) {
                 Toast.makeText(this@CourseModulesActivity, "Error: ${t.message}", Toast.LENGTH_SHORT).show()
-                Log.e("CourseModulesActivity", "Failed to load modules: ${t.message}", t)
+                Log.e(TAG, "Failed to load modules: ${t.message}", t)
             }
         })
     }
 
-    /**
-     * Utility function to determine if a module has a new assessment.
-     * In a real app, you may call a dedicated API or check a flag from the response.
-     */
-    private fun checkIfNewAssessment(moduleId: String, callback: (Boolean) -> Unit) {
-        ApiClient.assessmentApi.getAssessmentsByModule(moduleId).enqueue(object : Callback<List<AssessmentResponse>> {
-            override fun onResponse(call: Call<List<AssessmentResponse>>, response: Response<List<AssessmentResponse>>) {
-                callback(!response.body().isNullOrEmpty()) // true if at least one assessment exists
-            }
+    private fun checkForNewAssessments(module: ModuleResponse, callback: (ModuleResponse) -> Unit) {
+        ApiClient.assessmentApi.getAssessmentsByModule(module.moduleID)
+            .enqueue(object : Callback<List<AssessmentResponse>> {
+                override fun onResponse(
+                    call: Call<List<AssessmentResponse>>,
+                    assessmentResponse: Response<List<AssessmentResponse>>
+                ) {
+                    val hasNewAssessment = !assessmentResponse.body().isNullOrEmpty()
+                    val updatedModule = module.copy(hasNewAssessment = hasNewAssessment)
+                    callback(updatedModule)
+                }
 
-            override fun onFailure(call: Call<List<AssessmentResponse>>, t: Throwable) {
-                callback(false)
+                override fun onFailure(call: Call<List<AssessmentResponse>>, t: Throwable) {
+                    Log.e(TAG, "Failed to check assessment for module ${module.moduleTitle}", t)
+                    callback(module.copy(hasNewAssessment = false))
+                }
+            })
+    }
+
+    private fun updateModuleCount() {
+        tvModuleCount.text = "${modules.size} Modules"
+    }
+
+    private fun showSortOptions() {
+        // Create a simple sort dialog or dropdown
+        val sortOptions = arrayOf("By Name (A-Z)", "By Name (Z-A)")
+
+        androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle("Sort Modules")
+            .setItems(sortOptions) { _, which ->
+                when (which) {
+                    0 -> sortModulesByName(ascending = true)
+                    1 -> sortModulesByName(ascending = false)
+                }
+                Toast.makeText(this, "Sorted: ${sortOptions[which]}", Toast.LENGTH_SHORT).show()
             }
-        })
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun sortModulesByName(ascending: Boolean) {
+        modules.sortBy { it.moduleTitle }
+        if (!ascending) {
+            modules.reverse()
+        }
+        adapter.notifyDataSetChanged()
     }
 
     /**
@@ -120,7 +197,12 @@ class CourseModulesActivity : AppCompatActivity() {
      */
     override fun onResume() {
         super.onResume()
-        courseId?.let { loadModules(it) }
+        courseId?.let {
+            // Only refresh if needed - you might want to add a refresh condition
+            if (modules.isEmpty()) {
+                loadModules(it)
+            }
+        }
     }
 }
 
