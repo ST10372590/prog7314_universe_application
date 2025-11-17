@@ -21,7 +21,7 @@
 
     <Button
         android:id="@+id/btnTeach"
-        android:layout_width="106dp"
+        android:layout_width="129dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:backgroundTint="#FF5722"
