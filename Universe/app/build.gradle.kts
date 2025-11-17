@@ -61,7 +61,7 @@ dependencies {
     implementation("androidx.datastore:datastore-preferences:1.0.0")
 
     // Firebase
-    implementation(platform("com.google.firebase:firebase-bom:34.4.0"))
+    implementation(platform("com.google.firebase:firebase-bom:34.6.0"))
 
     implementation(libs.firebase.messaging)
     implementation(libs.firebase.database.ktx)
