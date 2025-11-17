@@ -61,7 +61,6 @@ data class ModuleResponse(
     val hasNewAssessment: Boolean
 )
 
-
 data class ApiResponse(
     val message: String
 )

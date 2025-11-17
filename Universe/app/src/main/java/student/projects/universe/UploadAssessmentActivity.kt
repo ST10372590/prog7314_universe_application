@@ -23,6 +23,11 @@ import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
 
+/**
+ * Activity for uploading assessments to a specific module.
+ * Allows user to select due date, attach files, and upload assessments.
+ * Displays list of existing assessments with ability to view files.
+ */
 class UploadAssessmentActivity : AppCompatActivity() {
 
     // UI components
@@ -65,6 +70,9 @@ class UploadAssessmentActivity : AppCompatActivity() {
         loadAssessments()
     }
 
+    /**
+     * Initialize all UI views from the layout.
+     */
     private fun initializeViews() {
         // Header
         tvHeaderTitle = findViewById(R.id.tvHeaderTitle)
@@ -90,26 +98,30 @@ class UploadAssessmentActivity : AppCompatActivity() {
         tvFooter = findViewById(R.id.tvFooter)
     }
 
+    /**
+     * Load course and module data passed from previous Activity.
+     */
     private fun loadIntentData() {
         courseId = intent.getStringExtra("courseId") ?: ""
         moduleId = intent.getStringExtra("moduleId") ?: ""
         moduleTitle = intent.getStringExtra("moduleTitle") ?: "Untitled Module"
         courseTitle = intent.getStringExtra("courseTitle") ?: "Unknown Course"
 
-        Log.d("UploadAssessment", "Received courseId: '$courseId', moduleId: '$moduleId', title: '$moduleTitle'")
+        Log.d("UploadAssessment", "Received courseId: '$courseId', moduleId: '$moduleId', title: '$moduleTitle'") // (Patel, 2025)
     }
 
+    /**
+     * Setup UI texts and footer with module and course information.
+     */
     private fun setupUI() {
-        // Update header
         tvHeaderTitle.text = "Upload Assessment - $moduleTitle"
-
-        // Update module info card
         tvModuleTitle.text = "Module: $moduleTitle"
-
-        // Set up footer
         tvFooter.text = "© 2025 Universe App - $moduleTitle"
     }
 
+    /**
+     * Setup RecyclerView with adapter to display list of assessments.
+     */
     private fun setupRecyclerView() {
         assessmentAdapter = AssessmentAdapter(mutableListOf()) { fileUrl ->
             openFile(fileUrl)
@@ -118,13 +130,18 @@ class UploadAssessmentActivity : AppCompatActivity() {
         rvAssessments.layoutManager = LinearLayoutManager(this)
     }
 
+    /**
+     * Setup button click listeners for date selection, file picking, and submission.
+     */
     private fun setupClickListeners() {
-
         btnSelectDate.setOnClickListener { showDatePicker() }
         btnAttachFile.setOnClickListener { pickFile() }
         btnSubmit.setOnClickListener { submitAssessment() }
     }
 
+    /**
+     * Show a date picker dialog for user to select due date.
+     */
     private fun showDatePicker() {
         val calendar = Calendar.getInstance()
         DatePickerDialog(
@@ -134,6 +151,7 @@ class UploadAssessmentActivity : AppCompatActivity() {
                 val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.US)
                 selectedDueDate = sdf.format(calendar.time)
                 tvDueDate.text = selectedDueDate
+                Log.d("UploadAssessment", "Due date selected: $selectedDueDate") // (Aram, 2023)
             },
             calendar.get(Calendar.YEAR),
             calendar.get(Calendar.MONTH),
@@ -141,13 +159,20 @@ class UploadAssessmentActivity : AppCompatActivity() {
         ).show()
     }
 
+    /**
+     * Launches file picker intent to select any file.
+     */
     private fun pickFile() {
-        val intent = Intent(Intent.ACTION_GET_CONTENT)
-        intent.type = "*/*"
-        intent.addCategory(Intent.CATEGORY_OPENABLE)
+        val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
+            type = "*/*"
+            addCategory(Intent.CATEGORY_OPENABLE)
+        }
         startActivityForResult(Intent.createChooser(intent, "Select File"), PICK_FILE_REQUEST)
     }
 
+    /**
+     * Handles result of file picker and updates UI with selected file name.
+     */
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == PICK_FILE_REQUEST && resultCode == RESULT_OK) {
@@ -156,10 +181,14 @@ class UploadAssessmentActivity : AppCompatActivity() {
                 val fileName = getFileName(it)
                 tvSelectedFileName.text = fileName
                 Toast.makeText(this, "Selected: $fileName", Toast.LENGTH_SHORT).show()
+                Log.d("UploadAssessment", "File selected: $fileName") // (Patel, 2025)
             }
         }
     }
 
+    /**
+     * Retrieves the display name of a file given its Uri.
+     */
     private fun getFileName(uri: Uri): String {
         var result = ""
         contentResolver.query(uri, null, null, null, null)?.use { cursor ->
@@ -171,8 +200,11 @@ class UploadAssessmentActivity : AppCompatActivity() {
         return result
     }
 
+    /**
+     * Loads existing assessments for this module from the API.
+     */
     private fun loadAssessments() {
-        Log.d("UploadAssessment", "Loading assessments for moduleId: '$moduleId'")
+        Log.d("UploadAssessment", "Loading assessments for moduleId: '$moduleId'") // (Aram, 2023)
 
         ApiClient.assessmentApi.getAssessmentsByModule(moduleId)
             .enqueue(object : Callback<List<AssessmentResponse>> {
@@ -227,11 +259,17 @@ class UploadAssessmentActivity : AppCompatActivity() {
             })
     }
 
+    /**
+     * Shows or hides the "no assessments" message.
+     */
     private fun showNoAssessmentsMessage(show: Boolean) {
         tvNoAssessments.visibility = if (show) View.VISIBLE else View.GONE
         rvAssessments.visibility = if (show) View.GONE else View.VISIBLE
     }
 
+    /**
+     * Validates form input and submits the assessment with optional file attachment.
+     */
     private fun submitAssessment() {
         val title = etTitle.text.toString().trim()
         val description = etDescription.text.toString().trim()
@@ -268,10 +306,11 @@ class UploadAssessmentActivity : AppCompatActivity() {
             return
         }
 
-        // Show loading state
+        // Disable submit button and show uploading state
         btnSubmit.isEnabled = false
         btnSubmit.text = "Uploading..."
 
+        // Format due date to UTC ISO string
         val formattedDueDate = try {
             val parsedDate = SimpleDateFormat("yyyy-MM-dd", Locale.US).parse(selectedDueDate)
             val sdfUtc = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US)
@@ -281,6 +320,7 @@ class UploadAssessmentActivity : AppCompatActivity() {
             selectedDueDate
         }
 
+        // Prepare multipart form data parts
         val titlePart = RequestBody.create("text/plain".toMediaTypeOrNull(), title)
         val descPart = RequestBody.create("text/plain".toMediaTypeOrNull(), description)
         val duePart = RequestBody.create("text/plain".toMediaTypeOrNull(), formattedDueDate)
@@ -298,14 +338,17 @@ class UploadAssessmentActivity : AppCompatActivity() {
                 val mimeType = contentResolver.getType(uri) ?: "application/octet-stream"
                 val requestFile = file.asRequestBody(mimeType.toMediaTypeOrNull())
                 filePart = MultipartBody.Part.createFormData("file", file.name, requestFile)
+                Log.d("UploadAssessment", "File part created for upload: ${file.name}") // (Patel, 2025)
             } catch (e: Exception) {
                 Toast.makeText(this, "Failed to read selected file", Toast.LENGTH_SHORT).show()
                 btnSubmit.isEnabled = true
                 btnSubmit.text = "Create Assessment"
+                Log.e("UploadAssessment", "Error preparing file for upload", e)
                 return
             }
         }
 
+        // Make API call to upload assessment with optional file
         ApiClient.assessmentApi.createAssessment(
             titlePart, descPart, duePart, marksPart, coursePart, modulePart, filePart
         ).enqueue(object : Callback<AssessmentResponse> {
@@ -347,10 +390,7 @@ class UploadAssessmentActivity : AppCompatActivity() {
                             Log.e("UploadAssessment", "Failed to push notification: ${e.message}")
                         }
 
-                    // Reset form
                     resetForm()
-
-                    // Reload assessments to ensure data is fresh
                     loadAssessments()
 
                 } else {
@@ -369,6 +409,9 @@ class UploadAssessmentActivity : AppCompatActivity() {
         })
     }
 
+    /**
+     * Resets the form fields and clears selections.
+     */
     private fun resetForm() {
         etTitle.text.clear()
         etDescription.text.clear()
@@ -377,31 +420,36 @@ class UploadAssessmentActivity : AppCompatActivity() {
         tvSelectedFileName.text = "No file selected"
         selectedDueDate = ""
         selectedFileUri = null
+        Log.d("UploadAssessment", "Form reset") // (Aram, 2023)
     }
 
+    /**
+     * Opens an assessment file using an external app if available.
+     */
     private fun openFile(fileUrl: String?) {
         fileUrl?.let {
             val intent = Intent(Intent.ACTION_VIEW)
             intent.setDataAndType(Uri.parse(it), "*/*")
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 
-            // Check if there's an app that can handle this file type
             if (intent.resolveActivity(packageManager) != null) {
                 startActivity(intent)
+                Log.d("UploadAssessment", "Opening file URL: $fileUrl")
             } else {
                 Toast.makeText(this, "No app available to open this file", Toast.LENGTH_SHORT).show()
+                Log.w("UploadAssessment", "No app found to open file URL: $fileUrl")
             }
         }
     }
 
     override fun onResume() {
         super.onResume()
-        // Refresh assessments when returning to this activity
-        loadAssessments()
+        loadAssessments() // Refresh assessments when returning to this activity
     }
 }
 
 /*
+
 Reference List
 
 Aram. 2023. Refit – The Retrofit of .NET, 27 September 2023, Codingsonata.
@@ -410,4 +458,5 @@ Aram. 2023. Refit – The Retrofit of .NET, 27 September 2023, Codingsonata.
 Patel, B. 2025. 12 Top Kotlin Features to Enhance Android App
 Development Process, 20 May 2025, spaceotechnologies. [Blog]. Available at:
 https://www.spaceotechnologies.com/blog/kotlin-features/ [27 October 2025]
+
 */

@@ -9,19 +9,24 @@ import android.media.RingtoneManager
 import android.os.Build
 import android.util.Log
 import androidx.core.app.NotificationCompat
-import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 
+/**
+ * Service to handle incoming Firebase Cloud Messaging (FCM) messages.
+ * Differentiates between message types (assessment, message) and builds appropriate notifications.
+ * Also handles token refresh and uploads token for push notifications.
+ */
 class MyFirebaseMessagingService : FirebaseMessagingService() {
 
-    override fun onMessageReceived(remoteMessage: RemoteMessage) {
-        Log.d("FCM", "From: ${remoteMessage.from}")
+    private val TAG = "MyFirebaseMsgService"
 
-        // Prefer data payload (it gives us control). If not present, use notification payload.
+    override fun onMessageReceived(remoteMessage: RemoteMessage) {
+        Log.d(TAG, "From: ${remoteMessage.from}")
+
         val data = remoteMessage.data
         if (data.isNotEmpty()) {
-            Log.d("FCM", "Data Payload: $data")
+            Log.d(TAG, "Data Payload: $data")
             val type = data["type"]
 
             when (type) {
@@ -29,25 +34,28 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                     val title = data["title"] ?: "New Assessment"
                     val description = data["description"] ?: "A new assessment has been uploaded."
                     val moduleId = data["moduleId"] ?: ""
+                    Log.d(TAG, "Handling assessment notification for moduleId=$moduleId")
                     sendAssessmentNotification(title, description, moduleId, data)
                 }
                 "message" -> {
                     val senderName = data["senderName"] ?: "New Message"
                     val content = data["content"] ?: "You have received a new message."
+                    Log.d(TAG, "Handling message notification from sender=$senderName")
                     sendMessageNotification(senderName, content, data)
                 }
                 else -> {
-                    // Unknown type — show something generic
+                    // Unknown or no type specified, fallback to notification payload or generic notification
                     val title = data["title"] ?: remoteMessage.notification?.title ?: "Notification"
                     val body = data["body"] ?: remoteMessage.notification?.body ?: ""
+                    Log.d(TAG, "Handling generic notification: title=$title, body=$body")
                     sendMessageNotification(title, body, data)
                 }
             }
         } else {
-            // Fallback to notification-only payload
+            // No data payload, fallback to notification payload only
             remoteMessage.notification?.let {
-                Log.d("FCM", "Notification Body: ${it.body}")
-                // We can't guarantee data here; open a generic screen (DirectMessageActivity)
+                Log.d(TAG, "Notification Body: ${it.body}")
+                // Open a generic message screen
                 sendMessageNotification(it.title ?: "New Message", it.body ?: "", emptyMap())
             }
         }
@@ -55,31 +63,35 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
     override fun onNewToken(token: String) {
         super.onNewToken(token)
-        Log.d("FCM", "Refreshed token: $token")
+        Log.d(TAG, "Refreshed token: $token")
 
-        // Best-effort: upload to Firestore if we know current user id
         try {
-            val currentUserId = ApiClient.currentUserId // your client-side tracked user id
+            val currentUserId = ApiClient.currentUserId // Client-side stored current user id
             if (currentUserId != 0) {
+                Log.d(TAG, "Uploading refreshed token for userId=$currentUserId")
                 FirebaseTokenHelper.uploadUserToken(currentUserId.toString())
             } else {
-                Log.w("MyFirebaseMsgService", "No current user id available to upload token")
+                Log.w(TAG, "No current user id available to upload token")
             }
         } catch (ex: Exception) {
-            Log.e("MyFirebaseMsgService", "Error uploading new token", ex)
+            Log.e(TAG, "Error uploading new token", ex)
         }
     }
 
     /**
-     * Builds and shows a notification for a chat message.
-     * data: map containing keys such as senderId, receiverId, conversationId, senderName, content
+     * Builds and displays a notification for chat messages.
+     *
+     * @param title The title to display on the notification (usually sender's name)
+     * @param messageBody The content of the message
+     * @param data Additional data to assist with navigation or logic
      */
     private fun sendMessageNotification(title: String?, messageBody: String?, data: Map<String, String>) {
-        // Extract useful data for navigation
         val senderId = data["senderId"]?.toIntOrNull() ?: data["senderID"]?.toIntOrNull() ?: 0
         val receiverId = data["receiverId"]?.toIntOrNull() ?: data["receiverID"]?.toIntOrNull() ?: 0
         val convId = data["conversationId"] ?: computeConversationIdSafely(senderId, receiverId)
         val senderName = data["senderName"] ?: title ?: "Message"
+
+        Log.d(TAG, "Preparing message notification for conversationId=$convId, senderId=$senderId, receiverId=$receiverId")
 
         // Intent to open ChatActivity and open the correct conversation
         val intent = Intent(this, ChatActivity::class.java).apply {
@@ -92,7 +104,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
         val pendingIntent = PendingIntent.getActivity(
             this,
-            convId.hashCode(), // unique per conversation
+            convId.hashCode(), // Unique request code per conversation
             intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
@@ -111,18 +123,26 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setNumber(1)
 
-        notificationManager.notify((convId.hashCode() and 0xfffffff), notificationBuilder.build())
+        notificationManager.notify(convId.hashCode() and 0xfffffff, notificationBuilder.build())
+        Log.d(TAG, "Message notification sent for convId=$convId")
     }
 
     /**
-     * Builds and shows a notification for assessments or other events.
-     * Also includes optional data for navigation.
+     * Builds and displays a notification for assessments or similar events.
+     *
+     * @param title The notification title
+     * @param description The notification content text
+     * @param moduleId The related module ID, used for intent and notification ID
+     * @param data Additional data if needed
      */
     private fun sendAssessmentNotification(title: String, description: String, moduleId: String, data: Map<String, String>) {
+        Log.d(TAG, "Preparing assessment notification for moduleId=$moduleId")
+
         val intent = Intent(this, StudentAssessmentActivity::class.java).apply {
             putExtra("MODULE_ID", moduleId)
             addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
         }
+
         val pendingIntent = PendingIntent.getActivity(
             this,
             moduleId.hashCode(),
@@ -144,9 +164,17 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setNumber(1)
 
-        notificationManager.notify((moduleId.hashCode() and 0xfffffff), notificationBuilder.build())
+        notificationManager.notify(moduleId.hashCode() and 0xfffffff, notificationBuilder.build())
+        Log.d(TAG, "Assessment notification sent for moduleId=$moduleId")
     }
 
+    /**
+     * Creates notification channel for Android Oreo and above.
+     *
+     * @param notificationManager NotificationManager instance
+     * @param channelId Unique channel ID string
+     * @param channelName User visible channel name
+     */
     private fun createNotificationChannel(
         notificationManager: NotificationManager,
         channelId: String,
@@ -155,12 +183,17 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_HIGH)
             notificationManager.createNotificationChannel(channel)
+            Log.d(TAG, "Notification channel created: $channelName ($channelId)")
         }
     }
 
     /**
-     * Helper to compute conversation id if the sender/receiver ids are present.
-     * Returns "0_0" if no valid ids.
+     * Safely compute conversation ID string based on sender and receiver IDs.
+     * Used for unique identification of chat conversations.
+     *
+     * @param a senderId
+     * @param b receiverId
+     * @return conversation ID string in "min_max" format or "0_0" if invalid
      */
     private fun computeConversationIdSafely(a: Int, b: Int): String {
         return if (a <= 0 && b <= 0) {

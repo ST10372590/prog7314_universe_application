@@ -8,8 +8,22 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
+/**
+ * Activity to allow lecturers to review and provide feedback on student submissions.
+ * This includes viewing submission details, entering grades, and writing feedback.
+ * Network requests update the backend with submitted feedback.
+ *
+ * Implements:
+ * - Input validation for grade and feedback
+ * - Network call with Retrofit for updating feedback
+ * - User-friendly loading indicators and error handling
+ * - Confirmation dialog on unsaved changes before navigating away
+ *
+ * Logging added for easier debugging and traceability (Patel, 2025).
+ */
 class LecturerSubmissionReviewActivity : AppCompatActivity() {
 
+    // UI elements
     private lateinit var tvHeaderTitle: TextView
     private lateinit var tvStudentName: TextView
     private lateinit var tvSubmittedAt: TextView
@@ -20,6 +34,7 @@ class LecturerSubmissionReviewActivity : AppCompatActivity() {
     private lateinit var progressBar: ProgressBar
     private lateinit var btnBack: ImageButton
 
+    // ID of the submission being reviewed
     private var submissionId: Int = -1
 
     companion object {
@@ -30,12 +45,17 @@ class LecturerSubmissionReviewActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_lecturer_submission_review)
 
-        // Initialize all UI elements including the new ones
+        Log.d(TAG, "onCreate: Initializing views and loading submission data")
+
         initializeViews()
         setupClickListeners()
         loadSubmissionData()
     }
 
+    /**
+     * Initializes UI components by finding them in the layout.
+     * This improves code readability and maintenance (Patel, 2025).
+     */
     private fun initializeViews() {
         tvHeaderTitle = findViewById(R.id.tvHeaderTitle)
         tvStudentName = findViewById(R.id.tvStudentName)
@@ -46,36 +66,40 @@ class LecturerSubmissionReviewActivity : AppCompatActivity() {
         btnSubmitFeedback = findViewById(R.id.btnSubmitFeedback)
         progressBar = findViewById(R.id.progressBar)
 
-        // Note: You'll need to add the ImageButton to your layout XML
-        // If you add btnBack to your layout, uncomment the line below:
+        // Optional back button; enable if added to layout
         // btnBack = findViewById(R.id.btnBack)
     }
 
+    /**
+     * Sets up event listeners for UI components.
+     * Handles submission of feedback and opening file links (Patel, 2025).
+     */
     private fun setupClickListeners() {
         btnSubmitFeedback.setOnClickListener {
+            Log.d(TAG, "Submit feedback button clicked")
             updateFeedback()
         }
 
-        // If you add back button to layout, uncomment this:
-        // btnBack.setOnClickListener {
-        //     onBackPressed()
-        // }
+        // Uncomment if back button is implemented in layout
+        // btnBack.setOnClickListener { onBackPressed() }
 
-        // Make file link clickable
+        // Make file link clickable and show a toast or open in browser
         tvFileLink.setOnClickListener {
             val fileLink = intent.getStringExtra("fileLink") ?: ""
             if (fileLink.isNotEmpty()) {
-                // Open the file link (you might want to use an Intent to open the URL)
                 Toast.makeText(this, "Opening file: $fileLink", Toast.LENGTH_SHORT).show()
-                // Example: openUrlInBrowser(fileLink)
+                // TODO: Implement intent to open URL in browser
             } else {
                 Toast.makeText(this, "No file link available", Toast.LENGTH_SHORT).show()
             }
         }
     }
 
+    /**
+     * Loads submission data passed via intent and populates UI elements.
+     * Truncates file link for display and sets accessibility content description.
+     */
     private fun loadSubmissionData() {
-        // Retrieve intent data
         submissionId = intent.getIntExtra("submissionId", -1)
         val studentName = intent.getStringExtra("studentName") ?: "Unknown Student"
         val submittedAt = intent.getStringExtra("submittedAt") ?: "Unknown Date"
@@ -83,44 +107,40 @@ class LecturerSubmissionReviewActivity : AppCompatActivity() {
         val grade = intent.getStringExtra("grade") ?: ""
         val feedback = intent.getStringExtra("feedback") ?: ""
 
-        // Display data with better formatting
         tvStudentName.text = studentName
         tvSubmittedAt.text = "Submitted: $submittedAt"
 
-        // Format file link to be more user-friendly
+        // Truncate file link for better UX if too long
         val displayFileLink = if (fileLink.length > 30) {
             "${fileLink.take(30)}..."
-        } else {
-            fileLink
-        }
+        } else fileLink
         tvFileLink.text = displayFileLink
         tvFileLink.contentDescription = "Open file: $fileLink" // Accessibility
 
-        // Set existing grade and feedback if available
         etGrade.setText(grade)
         etFeedback.setText(feedback)
 
-        // Update header with student name for context
         tvHeaderTitle.text = "Feedback for $studentName"
 
-        Log.d(TAG, "Activity started with submissionId: $submissionId")
-        Log.d(TAG, "Loaded studentName: $studentName, submittedAt: $submittedAt")
+        Log.d(TAG, "Loaded submission data for ID $submissionId, student $studentName")
         Log.d(TAG, "File link: $fileLink")
-        Log.d(TAG, "Existing grade: '$grade', feedback: '$feedback'")
+        Log.d(TAG, "Grade prefilled: '$grade', Feedback prefilled length: ${feedback.length}")
     }
 
+    /**
+     * Validates input and sends updated feedback to server.
+     * Shows loading indicator during network call.
+     * Handles success and failure responses with user feedback.
+     */
     private fun updateFeedback() {
         val grade = etGrade.text.toString().trim()
         val feedback = etFeedback.text.toString().trim()
 
-        Log.d(TAG, "Attempting to update feedback for submissionId: $submissionId")
-        Log.d(TAG, "Entered Grade: '$grade'")
-        Log.d(TAG, "Entered Feedback: '${feedback.take(50)}...'") // Log first 50 chars
+        Log.d(TAG, "updateFeedback: submissionId=$submissionId, grade='$grade', feedback='${feedback.take(50)}...'")
 
-        // Enhanced validation
         if (submissionId == -1) {
             showError("Invalid submission ID. Please try again.")
-            Log.e(TAG, "Cannot submit feedback — submissionId is invalid (-1)!")
+            Log.e(TAG, "Invalid submission ID: -1")
             return
         }
 
@@ -136,7 +156,7 @@ class LecturerSubmissionReviewActivity : AppCompatActivity() {
             return
         }
 
-        // Validate grade format
+        // Validate grade is numeric and between 0 and 100
         val gradeValue = try {
             grade.toInt()
         } catch (e: NumberFormatException) {
@@ -145,68 +165,75 @@ class LecturerSubmissionReviewActivity : AppCompatActivity() {
             return
         }
 
-        if (gradeValue < 0 || gradeValue > 100) {
+        if (gradeValue !in 0..100) {
             showError("Please enter a grade between 0 and 100")
             etGrade.requestFocus()
             return
         }
 
         showLoading(true)
-        Log.d(TAG, "Sending feedback update request to server...")
+        Log.d(TAG, "Sending feedback update to server for submissionId: $submissionId")
 
         ApiClient.lecturerApi.updateSubmissionFeedback(submissionId, grade, feedback)
             .enqueue(object : Callback<ApiResponse> {
                 override fun onResponse(call: Call<ApiResponse>, response: Response<ApiResponse>) {
                     showLoading(false)
-
-                    Log.d(TAG, "Response received from server")
-                    Log.d(TAG, "Response Code: ${response.code()}")
-                    Log.d(TAG, "Response Message: ${response.message()}")
+                    Log.d(TAG, "Received response: code=${response.code()}, message=${response.message()}")
 
                     if (response.isSuccessful && response.body() != null) {
-                        val apiResponse = response.body()!!
                         showSuccess("Feedback submitted successfully")
-                        Log.i(TAG, "Feedback submitted successfully for submissionId: $submissionId")
+                        Log.i(TAG, "Feedback updated successfully for submissionId: $submissionId")
 
-                        // Set result and finish
                         setResult(RESULT_OK)
                         finish()
                     } else {
-                        val errorMessage = when (response.code()) {
+                        val errorMsg = when (response.code()) {
                             400 -> "Invalid request data"
                             404 -> "Submission not found"
                             500 -> "Server error. Please try again later."
                             else -> "Failed to submit feedback"
                         }
-                        showError(errorMessage)
-                        Log.e(TAG, "Failed to submit feedback. Code: ${response.code()}")
+                        showError(errorMsg)
+                        Log.e(TAG, "Failed to submit feedback: HTTP ${response.code()}")
                     }
                 }
 
                 override fun onFailure(call: Call<ApiResponse>, t: Throwable) {
                     showLoading(false)
                     showError("Network error: ${t.message ?: "Unknown error"}")
-                    Log.e(TAG, "🌐 Network error during feedback submission", t)
+                    Log.e(TAG, "Network failure during feedback update", t)
                 }
             })
     }
 
+    /**
+     * Shows or hides the loading indicator and disables/enables the submit button accordingly.
+     */
     private fun showLoading(show: Boolean) {
         progressBar.visibility = if (show) android.view.View.VISIBLE else android.view.View.GONE
         btnSubmitFeedback.isEnabled = !show
         btnSubmitFeedback.alpha = if (show) 0.5f else 1.0f
     }
 
+    /**
+     * Displays a short success message to the user.
+     */
     private fun showSuccess(message: String) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 
+    /**
+     * Displays a long error message to the user.
+     */
     private fun showError(message: String) {
         Toast.makeText(this, message, Toast.LENGTH_LONG).show()
     }
 
+    /**
+     * Overrides the back button to warn user about unsaved changes.
+     * Prompts confirmation dialog if changes detected (Patel, 2025).
+     */
     override fun onBackPressed() {
-        // Check if there are unsaved changes
         val currentGrade = etGrade.text.toString().trim()
         val currentFeedback = etFeedback.text.toString().trim()
 
@@ -214,13 +241,10 @@ class LecturerSubmissionReviewActivity : AppCompatActivity() {
         val originalFeedback = intent.getStringExtra("feedback") ?: ""
 
         if (currentGrade != originalGrade || currentFeedback != originalFeedback) {
-            // Show confirmation dialog for unsaved changes
             android.app.AlertDialog.Builder(this)
                 .setTitle("Unsaved Changes")
                 .setMessage("You have unsaved changes. Are you sure you want to leave?")
-                .setPositiveButton("Leave") { _, _ ->
-                    super.onBackPressed()
-                }
+                .setPositiveButton("Leave") { _, _ -> super.onBackPressed() }
                 .setNegativeButton("Stay", null)
                 .show()
         } else {

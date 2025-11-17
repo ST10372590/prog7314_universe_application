@@ -12,8 +12,18 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
+/**
+ * Activity to display a list of modules for a selected course.
+ * Features loading modules from API, checking if modules have new assessments,
+ * sorting modules, and displaying course details.
+ *
+ * References:
+ * - Retrofit API usage per Aram (2023)
+ * - Kotlin collection operations and callbacks (Patel, 2025)
+ */
 class CourseModulesActivity : AppCompatActivity() {
 
+    // UI elements for displaying course info and modules list
     private lateinit var tvCourseTitle: TextView
     private lateinit var tvCourseCode: TextView
     private lateinit var tvModuleCount: TextView
@@ -21,6 +31,8 @@ class CourseModulesActivity : AppCompatActivity() {
     private lateinit var btnBack: ImageButton
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: StudentModuleAdapter
+
+    // Data containers
     private val modules = mutableListOf<ModuleResponse>()
     private var courseId: String? = null
     private var courseTitle: String? = null
@@ -33,11 +45,19 @@ class CourseModulesActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_course_modules)
 
+        // Step 1: Initialize views (UI binding) — Patel (2025) promotes clean separation of UI init
         initializeViews()
+
+        // Step 2: Setup RecyclerView with adapter and layout manager
         setupRecyclerView()
+
+        // Step 3: Load incoming Intent data passed from previous Activity
         loadIntentData()
+
+        // Step 4: Setup button and other click listeners
         setupClickListeners()
 
+        // Step 5: Load modules if courseId is available, else log error and notify user
         courseId?.let {
             loadModules(it)
         } ?: run {
@@ -46,26 +66,33 @@ class CourseModulesActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Initializes UI components by binding them to layout views
+     * This keeps onCreate cleaner and modular (Patel, 2025)
+     */
     private fun initializeViews() {
-        // Header and navigation
         btnBack = findViewById(R.id.btnBack)
-
-        // Course info card
         tvCourseTitle = findViewById(R.id.tvCourseTitle)
         tvCourseCode = findViewById(R.id.tvCourseCode)
         tvModuleCount = findViewById(R.id.tvModuleCount)
-
-        // Modules section
         tvSort = findViewById(R.id.tvSort)
         recyclerView = findViewById(R.id.recyclerViewModules)
     }
 
+    /**
+     * Sets up RecyclerView with linear vertical layout and initializes adapter
+     * For efficient display and handling of large data sets (Aram, 2023)
+     */
     private fun setupRecyclerView() {
         adapter = StudentModuleAdapter(modules, this)
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.adapter = adapter
     }
 
+    /**
+     * Loads course information passed via Intent extras and updates UI accordingly.
+     * Defensive null checks and default values are applied to prevent crashes.
+     */
     private fun loadIntentData() {
         courseTitle = intent.getStringExtra("COURSE_TITLE")
         courseId = intent.getStringExtra("COURSE_ID")
@@ -75,14 +102,20 @@ class CourseModulesActivity : AppCompatActivity() {
         Log.d(TAG, "Opened CourseModulesActivity for: $courseTitle (ID: $courseId)")
     }
 
+    /**
+     * Updates course-related UI elements.
+     * The module count is updated after modules load (initially zero)
+     */
     private fun updateCourseInfoUI() {
         tvCourseTitle.text = courseTitle ?: "Course Title"
         tvCourseCode.text = "Course Code: $courseId"
-
-        // Update module count (will be updated when modules load)
         tvModuleCount.text = "${modules.size} Modules"
     }
 
+    /**
+     * Sets up click listeners for back navigation and sorting options.
+     * Separation of concerns improves readability and maintainability.
+     */
     private fun setupClickListeners() {
         btnBack.setOnClickListener {
             onBackPressed()
@@ -93,6 +126,13 @@ class CourseModulesActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Loads modules for the given courseId by calling the API.
+     * Each module is checked asynchronously for the presence of new assessments.
+     * Updates UI and logs throughout for clear traceability.
+     *
+     * @param courseId ID of the course to load modules for
+     */
     private fun loadModules(courseId: String) {
         ApiClient.moduleApi.getModulesByCourse(courseId).enqueue(object : Callback<List<ModuleResponse>> {
             override fun onResponse(
@@ -109,20 +149,21 @@ class CourseModulesActivity : AppCompatActivity() {
                         return
                     }
 
-                    // Load modules and check for assessments
+                    // Track processed modules to know when all callbacks complete
                     var modulesProcessed = 0
+
+                    // For each module, check for new assessments asynchronously
                     apiModules.forEach { module ->
                         checkForNewAssessments(module) { updatedModule ->
-                            // Use synchronized block to prevent race conditions
                             synchronized(modules) {
-                                // Remove any existing module with same ID before adding
+                                // Remove duplicates and add updated module info with assessment flag
                                 modules.removeAll { it.moduleID == updatedModule.moduleID }
                                 modules.add(updatedModule)
                             }
 
                             modulesProcessed++
 
-                            // Update UI when all modules are processed
+                            // Once all modules processed, update UI and notify adapter
                             if (modulesProcessed == apiModules.size) {
                                 updateModuleCount()
                                 adapter.notifyDataSetChanged()
@@ -144,6 +185,13 @@ class CourseModulesActivity : AppCompatActivity() {
         })
     }
 
+    /**
+     * Checks asynchronously if a module has new assessments by calling the API.
+     * Calls back with an updated ModuleResponse including hasNewAssessment flag.
+     *
+     * @param module Module to check assessments for
+     * @param callback Function to receive updated module with assessment flag
+     */
     private fun checkForNewAssessments(module: ModuleResponse, callback: (ModuleResponse) -> Unit) {
         ApiClient.assessmentApi.getAssessmentsByModule(module.moduleID)
             .enqueue(object : Callback<List<AssessmentResponse>> {
@@ -163,12 +211,19 @@ class CourseModulesActivity : AppCompatActivity() {
             })
     }
 
+    /**
+     * Updates the module count display in the UI.
+     * Called after module list changes.
+     */
     private fun updateModuleCount() {
         tvModuleCount.text = "${modules.size} Modules"
     }
 
+    /**
+     * Displays a dialog with sort options for modules.
+     * Currently supports sorting by module title ascending/descending.
+     */
     private fun showSortOptions() {
-        // Create a simple sort dialog or dropdown
         val sortOptions = arrayOf("By Name (A-Z)", "By Name (Z-A)")
 
         androidx.appcompat.app.AlertDialog.Builder(this)
@@ -184,6 +239,10 @@ class CourseModulesActivity : AppCompatActivity() {
             .show()
     }
 
+    /**
+     * Sorts the modules list by module title alphabetically.
+     * @param ascending true for A-Z, false for Z-A
+     */
     private fun sortModulesByName(ascending: Boolean) {
         modules.sortBy { it.moduleTitle }
         if (!ascending) {
@@ -193,12 +252,12 @@ class CourseModulesActivity : AppCompatActivity() {
     }
 
     /**
-     * Optional: Call this function to refresh modules when returning from an assessment submission
+     * Refreshes module list when the activity resumes,
+     * only loading modules if the list is empty to avoid redundant calls.
      */
     override fun onResume() {
         super.onResume()
         courseId?.let {
-            // Only refresh if needed - you might want to add a refresh condition
             if (modules.isEmpty()) {
                 loadModules(it)
             }
@@ -211,10 +270,9 @@ class CourseModulesActivity : AppCompatActivity() {
 Reference List
 
 Aram. 2023. Refit – The Retrofit of .NET, 27 September 2023, Codingsonata.
-[Blog]. Available at:  https://codingsonata.com/refit-the-retrofit-of-net/ [Accessed 22 October 2025]
+[Blog]. Available at: https://codingsonata.com/refit-the-retrofit-of-net/ [Accessed 22 October 2025]
 
-Patel, B. 2025. 12 Top Kotlin Features to Enhance Android App
-Development Process, 20 May 2025, spaceotechnologies. [Blog]. Available at:
-https://www.spaceotechnologies.com/blog/kotlin-features/ [27 October 2025]
+Patel, B. 2025. 12 Top Kotlin Features to Enhance Android App Development Process, 20 May 2025, spaceotechnologies.
+[Blog]. Available at: https://www.spaceotechnologies.com/blog/kotlin-features/ [Accessed 27 October 2025]
 
- */
+*/

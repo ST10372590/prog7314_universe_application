@@ -1,5 +1,6 @@
 package student.projects.universe
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,54 +12,66 @@ class AssessmentAdapter(
     private val onFileClick: (String) -> Unit // Lambda for handling file clicks
 ) : RecyclerView.Adapter<AssessmentAdapter.AssessmentViewHolder>() {
 
+    // ViewHolder holds references to the views for each list item (Hussain, 2019)
     class AssessmentViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val tvTitle: TextView = itemView.findViewById(R.id.tvTitle)
         val tvDescription: TextView = itemView.findViewById(R.id.tvDescription)
         val tvDueDate: TextView = itemView.findViewById(R.id.tvDueDate)
         val tvMaxMarks: TextView = itemView.findViewById(R.id.tvMaxMarks)
-        val btnOpenFile: TextView = itemView.findViewById(R.id.btnOpenFile) // Make sure your layout has this
+        val btnOpenFile: TextView = itemView.findViewById(R.id.btnOpenFile)
     }
 
+    // Inflates the item layout and creates the ViewHolder (Patel, 2025)
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AssessmentViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_assessment, parent, false)
         return AssessmentViewHolder(view)
     }
 
+    // Binds data to the ViewHolder views for each assessment item
     override fun onBindViewHolder(holder: AssessmentViewHolder, position: Int) {
         val assessment = assessments[position]
+
         holder.tvTitle.text = assessment.title
         holder.tvDescription.text = assessment.description
         holder.tvDueDate.text = "Due: ${assessment.dueDate}"
         holder.tvMaxMarks.text = "Max Marks: ${assessment.maxMarks}"
 
-        // Show/hide file button depending on fileUrl
+        // Show or hide the file button based on whether fileUrl is present
         if (!assessment.fileUrl.isNullOrEmpty()) {
             holder.btnOpenFile.visibility = View.VISIBLE
-            holder.btnOpenFile.setOnClickListener { onFileClick(assessment.fileUrl) }
+            holder.btnOpenFile.setOnClickListener {
+                Log.d("AssessmentAdapter", "File button clicked for assessment: ${assessment.title}")
+                onFileClick(assessment.fileUrl)
+            }
         } else {
             holder.btnOpenFile.visibility = View.GONE
         }
+
+        // Log data binding for debugging purposes
+        Log.d("AssessmentAdapter", "Bound assessment at position $position: ${assessment.title}")
     }
 
+    // Returns the number of assessment items
     override fun getItemCount(): Int = assessments.size
 
+    // Adds a new assessment to the top of the list and notifies the adapter (Patel, 2025)
     fun addAssessment(assessment: Assessment) {
         assessments.add(0, assessment)
         notifyItemInserted(0)
+        Log.d("AssessmentAdapter", "Added new assessment: ${assessment.title}")
     }
 
+    // Replaces the current list of assessments with a new list (Hussain, 2019)
     fun setAssessments(list: List<Assessment>) {
         assessments.clear()
         assessments.addAll(list)
         notifyDataSetChanged()
+        Log.d("AssessmentAdapter", "Set new assessments list with size: ${list.size}")
     }
 }
 
-
-
 /*
-
 Reference List
 
 Hussain, A. 2019. Android Fragments Tutorial: An Introduction with Kotlin, 10
@@ -68,4 +81,4 @@ Patel, B. 2025. 12 Top Kotlin Features to Enhance Android App
 Development Process, 20 May 2025, spaceotechnologies. [Blog]. Available at:
 https://www.spaceotechnologies.com/blog/kotlin-features/ [27 October 2025]
 
- */
+*/
