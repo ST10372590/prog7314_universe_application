@@ -1,146 +1,273 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#FFFFFF"
     android:fillViewport="true"
+    android:fitsSystemWindows="true"
     tools:context=".LoginActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="24dp"
+        android:padding="32dp"
         android:gravity="center_horizontal">
 
-        <!-- App Logo -->
-        <ImageView
-            android:id="@+id/imgLogo"
-            android:layout_width="120dp"
-            android:layout_height="120dp"
-            android:layout_marginTop="32dp"
-            android:layout_marginBottom="16dp"
-            android:src="@drawable/unilogo"
-            android:contentDescription="App Logo" />
-
-        <!-- Title -->
-        <TextView
-            android:id="@+id/tvLoginTitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:text="Welcome Back!"
-            android:textColor="#020000"
-            android:textSize="22sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Login to continue your journey in Universe"
-            android:textSize="14sp"
-            android:textColor="#6D4C41"
-            android:layout_marginBottom="32dp" />
-
-        <!-- Username Label -->
-        <TextView
+        <!-- Header Section -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Username"
-            android:textSize="14sp"
-            android:textColor="#4E342E"
-            android:layout_marginBottom="4dp" />
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            android:layout_marginBottom="48dp">
 
-        <!-- Username Input -->
-        <EditText
-            android:id="@+id/etUsername"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:hint="Enter your username"
-            android:paddingHorizontal="12dp"
-            android:background="@drawable/edittext_background"
-            android:textColor="#000"
-            android:textSize="16sp"
-            android:layout_marginBottom="16dp" />
+            <!-- App Logo -->
+            <ImageView
+                android:id="@+id/imgLogo"
+                android:layout_width="140dp"
+                android:layout_height="140dp"
+                android:layout_marginBottom="24dp"
+                android:src="@drawable/unilogo"
+                android:contentDescription="Universe App Logo"
+                android:scaleType="fitCenter" />
 
-        <!-- Password Label -->
-        <TextView
+            <!-- Welcome Text -->
+            <TextView
+                android:id="@+id/tvLoginTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:text="Welcome Back!"
+                android:textColor="#020000"
+                android:textSize="28sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.02" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Login to continue your journey in Universe"
+                android:textSize="16sp"
+                android:textColor="#6D4C41"
+                android:textAlignment="center"
+                android:lineSpacingExtra="4dp" />
+
+        </LinearLayout>
+
+        <!-- Login Form Section -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Password"
-            android:textSize="14sp"
-            android:textColor="#4E342E"
-            android:layout_marginBottom="4dp" />
+            android:orientation="vertical"
+            android:layout_marginBottom="32dp">
 
-        <!-- Password Input -->
-        <EditText
-            android:id="@+id/etPassword"
+            <!-- Username Field -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/usernameInputLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                app:boxCornerRadiusBottomEnd="12dp"
+                app:boxCornerRadiusBottomStart="12dp"
+                app:boxCornerRadiusTopEnd="12dp"
+                app:boxCornerRadiusTopStart="12dp"
+                app:boxStrokeColor="#800000"
+                app:hintTextColor="#4E342E"
+                app:startIconDrawable="@drawable/ic_person"
+                app:startIconTint="#800000">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etUsername"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="56dp"
+                    android:hint="Username"
+                    android:textColor="#000"
+                    android:textSize="16sp"
+                    android:inputType="text"
+                    android:maxLines="1"
+                    android:importantForAutofill="yes"
+                    android:autofillHints="username" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Password Field -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/passwordInputLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                app:boxCornerRadiusBottomEnd="12dp"
+                app:boxCornerRadiusBottomStart="12dp"
+                app:boxCornerRadiusTopEnd="12dp"
+                app:boxCornerRadiusTopStart="12dp"
+                app:boxStrokeColor="#800000"
+                app:hintTextColor="#4E342E"
+                app:startIconDrawable="@drawable/ic_lock"
+                app:startIconTint="#800000"
+                app:endIconMode="password_toggle"
+                app:endIconTint="#800000">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etPassword"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="56dp"
+                    android:hint="Password"
+                    android:textColor="#000"
+                    android:textSize="16sp"
+                    android:inputType="textPassword"
+                    android:maxLines="1"
+                    android:importantForAutofill="yes"
+                    android:autofillHints="password" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Forgot Password Link -->
+            <TextView
+                android:id="@+id/tvForgotPassword"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:text="Forgot Password?"
+                android:textColor="#800000"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:clickable="true"
+                android:focusable="true"
+                android:padding="8dp"
+                android:layout_marginBottom="24dp" />
+
+        </LinearLayout>
+
+        <!-- Action Buttons Section -->
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:hint="Enter your password"
-            android:inputType="textPassword"
-            android:paddingHorizontal="12dp"
-            android:background="@drawable/edittext_background"
-            android:textColor="#000"
-            android:textSize="16sp"
-            android:layout_marginBottom="32dp" />
-
-        <!-- Login Button -->
-        <TextView
-            android:id="@+id/btnGoRegister"
-            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="32dp"
-            android:clickable="true"
-            android:focusable="true"
-            android:text="Don't have an account? Register here"
-            android:textColor="#800000"
-            android:textSize="14sp"
-            android:textStyle="bold" />
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            android:layout_marginBottom="32dp">
 
-        <Button
-            android:id="@+id/btnLogin"
-            android:layout_width="200dp"
-            android:layout_height="48dp"
-            android:backgroundTint="#800000"
-            android:elevation="3dp"
-            android:fontFamily="sans-serif-medium"
-            android:text="Login"
-            android:textAllCaps="false"
-            android:textColor="#FFFFFF"
-            android:textSize="16sp"
-            android:layout_marginBottom="16dp" />
+            <!-- Primary Login Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnLogin"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:text="Login"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.02"
+                app:cornerRadius="16dp"
+                app:icon="@drawable/ic_login"
+                app:iconGravity="textStart"
+                app:iconPadding="8dp"
+                app:iconTint="@color/white"
+                android:backgroundTint="#800000"
+                android:elevation="4dp"
+                android:layout_marginBottom="16dp"
+                style="@style/Widget.Material3.Button" />
 
-        <!-- Google Login Button -->
-        <Button
-            android:id="@+id/btnGoogleLogin"
-            android:layout_width="200dp"
-            android:layout_height="48dp"
-            android:backgroundTint="#A0522D"
-            android:elevation="3dp"
-            android:fontFamily="sans-serif-medium"
-            android:text="Login with Google"
-            android:textAllCaps="false"
-            android:textColor="#FFFFFF"
-            android:textSize="16sp"
-            android:layout_marginBottom="16dp" />
+            <!-- Alternative Login Options -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Or continue with"
+                android:textColor="#6D4C41"
+                android:textSize="14sp"
+                android:layout_marginBottom="16dp"
+                android:padding="8dp" />
 
-        <!-- Biometric Login Button -->
-        <Button
-            android:id="@+id/btnBiometricLogin"
-            android:layout_width="200dp"
-            android:layout_height="48dp"
-            android:backgroundTint="#5D4037"
-            android:elevation="3dp"
-            android:fontFamily="sans-serif-medium"
-            android:text="Login with Biometrics"
-            android:textAllCaps="false"
-            android:textColor="#FFFFFF"
-            android:textSize="16sp"
-            android:layout_marginBottom="24dp" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:layout_marginBottom="24dp">
 
-        <!-- Register as Link -->
+                <!-- Google Login -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnGoogleLogin"
+                    android:layout_width="0dp"
+                    android:layout_height="56dp"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="8dp"
+                    android:text="Google"
+                    android:textColor="#5D4037"
+                    android:textSize="14sp"
+                    app:cornerRadius="12dp"
+                    app:icon="@drawable/ic_google"
+                    app:iconGravity="textStart"
+                    app:iconPadding="4dp"
+                    app:iconTint="#5D4037"
+                    app:strokeColor="#5D4037"
+                    app:strokeWidth="1dp"
+                    android:backgroundTint="#FFFFFF"
+                    android:elevation="2dp"
+                    style="@style/Widget.Material3.Button.OutlinedButton" />
+
+                <!-- Biometric Login -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnBiometricLogin"
+                    android:layout_width="0dp"
+                    android:layout_height="56dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="8dp"
+                    android:text="Biometric"
+                    android:textColor="#5D4037"
+                    android:textSize="14sp"
+                    app:cornerRadius="12dp"
+                    app:icon="@drawable/ic_fingerprint"
+                    app:iconGravity="textStart"
+                    app:iconPadding="4dp"
+                    app:iconTint="#5D4037"
+                    app:strokeColor="#5D4037"
+                    app:strokeWidth="1dp"
+                    android:backgroundTint="#FFFFFF"
+                    android:elevation="2dp"
+                    style="@style/Widget.Material3.Button.OutlinedButton" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <!-- Footer Section -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <TextView
+                android:id="@+id/btnGoRegister"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Don't have an account? Register here"
+                android:textColor="#800000"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:clickable="true"
+                android:focusable="true"
+                android:paddingVertical="12dp"
+                android:paddingHorizontal="16dp"
+                android:background="?attr/selectableItemBackground"
+                android:foreground="?attr/selectableItemBackground" />
+
+            <!-- App Version/Footer -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Universe App v1.0"
+                android:textColor="#9E9E9E"
+                android:textSize="12sp"
+                android:layout_marginTop="16dp" />
+
+        </LinearLayout>
 
     </LinearLayout>
 </ScrollView>
