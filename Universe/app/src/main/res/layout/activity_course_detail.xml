@@ -18,6 +18,32 @@
         android:gravity="center"
         android:elevation="4dp"/>
 
+    <!-- Offline Indicator -->
+    <TextView
+        android:id="@+id/tvOfflineIndicator"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#FFF59D"
+        android:padding="12dp"
+        android:text="Offline Mode - Using Cached Data"
+        android:textColor="#000"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:visibility="gone" />
+
+    <!-- Last Sync Info -->
+    <TextView
+        android:id="@+id/tvLastSync"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="8dp"
+        android:text="Last synced: Just now"
+        android:textSize="12sp"
+        android:textColor="#666"
+        android:gravity="center"
+        android:background="#F5F5F5" />
+
     <!-- Content container -->
     <ScrollView
         android:layout_width="match_parent"
